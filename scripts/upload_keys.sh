@@ -137,24 +137,67 @@ upload_to_host() {
         return 1
     fi
     
-    # In smoke test mode, just verify connectivity and security tool availability
+    # In smoke test mode, test the full pipeline with dummy values
     if [[ "$SMOKE_TEST" == true ]]; then
         echo -e "${GREEN}  ✓ SSH connection successful${NC}"
         echo -e "${GREEN}  ✓ 'security' tool available${NC}"
         
-        # Check which keys are available locally
+        # Build smoke test script that uses dummy values
+        local smoke_script="#!/bin/bash\nset -e\n\n"
+        local smoke_env_vars=()
+        
+        # Process each key definition with dummy values
         for key_def in "${!KEYS[@]}"; do
             IFS=':' read -r service_name account <<< "$key_def"
             local env_var="${KEYS[$key_def]}"
             
+            # Only test keys that exist locally
             if extract_key "$service_name" "$account" >/dev/null 2>&1; then
-                echo -e "${GREEN}  ✓ Local key found: $env_var${NC}"
-                RESULTS["${key_def}:${host}"]="smoke_ok"
+                # Use dummy value for smoke test
+                smoke_env_vars+=("${env_var}=smoke")
+                
+                # Add commands to smoke test script
+                smoke_script+="# Smoke test $env_var\n"
+                smoke_script+="if [[ -n \"\${${env_var}:-}\" ]]; then\n"
+                smoke_script+="  if [[ \"\${${env_var}}\" == \"smoke\" ]]; then\n"
+                smoke_script+="    echo \"smoke_ok|${key_def}\"\n"
+                smoke_script+="  else\n"
+                smoke_script+="    echo \"x|${key_def}|unexpected_value\"\n"
+                smoke_script+="  fi\n"
+                smoke_script+="else\n"
+                smoke_script+="  echo \"x|${key_def}|missing_env_var\"\n"
+                smoke_script+="fi\n\n"
             else
-                echo -e "${YELLOW}  ! Local key missing: $env_var${NC}"
+                # Key not found locally - mark as missing
                 RESULTS["${key_def}:${host}"]="missing"
             fi
         done
+        
+        # If no keys were found locally, skip this host
+        if [[ ${#smoke_env_vars[@]} -eq 0 ]]; then
+            echo -e "${RED}  No keys available for smoke test on $host${NC}"
+            return 1
+        fi
+        
+        # Execute the smoke test script on remote host
+        local smoke_result
+        if smoke_result=$(printf '%b' "$smoke_script" | ssh "$host" env "${smoke_env_vars[@]}" bash -s 2>&1); then
+            # Parse the results returned by remote script
+            while IFS='|' read -r status key_def error_msg; do
+                case "$status" in
+                    "smoke_ok") RESULTS["${key_def}:${host}"]="smoke_ok" ;;
+                    "x") RESULTS["${key_def}:${host}"]="x" ;;
+                esac
+            done <<< "$smoke_result"
+        else
+            echo -e "${RED}  Smoke test failed: $smoke_result${NC}"
+            # Mark all keys as error for this host
+            for key_def in "${!KEYS[@]}"; do
+                RESULTS["${key_def}:${host}"]="x"
+            done
+            return 1
+        fi
+        
         return 0
     fi
     
@@ -238,7 +281,7 @@ print_summary() {
     # Print table header row
     printf "%-35s" "Key"  # %-35s = left-aligned, 35 characters wide
     for host in "${HOST_LIST[@]}"; do
-        printf " %10s" "$host"  # %10s = right-aligned, 10 characters wide
+        printf " %s" "$(center_text "$host" 12)"  # Center host name in 12 characters
     done
     echo
     
@@ -269,6 +312,34 @@ print_summary() {
         echo  # New line after each key row
     done
     echo  # Extra blank line after table
+}
+
+# Center text within a specified width
+center_text() {
+    local text="$1"
+    local width="$2"
+    local text_len=${#text}
+    local padding=$(( (width - text_len) / 2 ))
+    local right_padding=$(( width - text_len - padding ))
+    printf "%*s%s%*s" "$padding" "" "$text" "$right_padding" ""
+}
+
+# Check local key availability
+# Only displays information, never shows actual key values
+check_local_keys() {
+    echo -e "${BLUE}Checking local keychain...${NC}"
+    
+    for key_def in "${!KEYS[@]}"; do
+        IFS=':' read -r service_name account <<< "$key_def"
+        local env_var="${KEYS[$key_def]}"
+        
+        if extract_key "$service_name" "$account" >/dev/null 2>&1; then
+            echo -e "${GREEN}  ✓ Local key available: $env_var${NC}"
+        else
+            echo -e "${YELLOW}  ! Local key missing: $env_var${NC}"
+        fi
+    done
+    echo
 }
 
 # Show usage information
@@ -333,6 +404,9 @@ main() {
     
     # Show hosts to user and get confirmation
     confirm_hosts "${detected_hosts[@]}"
+    
+    # Check local keys once at the beginning (both modes)
+    check_local_keys
     
     # Process each host (upload keys or run smoke test)
     if [[ "$SMOKE_TEST" == true ]]; then
