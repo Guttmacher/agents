@@ -1,6 +1,6 @@
-# Custom Modes & MCP Server Setup
+# AI Assistant Setup & Configuration
 
-This repository provides configuration files, scripts, and documentation for setting up custom modes and MCP servers across multiple AI coding assistants.
+This repository provides installation guides, configuration files, scripts, and documentation for setting up GitHub Copilot, Claude Desktop, Q, and other AI coding assistants with custom modes and MCP servers.
 
 ## Repository Structure
 
