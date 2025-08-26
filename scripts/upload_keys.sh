@@ -18,10 +18,10 @@ NC='\033[0m' # Reset to default color
 # Format: "service_name:account_name"="ENV_VAR_NAME"
 # These define what keys to extract from macOS keychain and where to store them remotely
 declare -A KEYS=(
-    ["atlassian-mcp:atlassian-domain"]="ATLASSIAN_DOMAIN"
+    ["atlassian-mcp:domain"]="ATLASSIAN_DOMAIN"
     ["atlassian-mcp:email"]="ATLASSIAN_EMAIL"
     ["atlassian-mcp:token"]="ATLASSIAN_API_TOKEN"
-    ["bitbucket-mcp:bitbucket-username"]="ATLASSIAN_BITBUCKET_USERNAME"
+    ["bitbucket-mcp:username"]="ATLASSIAN_BITBUCKET_USERNAME"
     ["bitbucket-mcp:app-password"]="ATLASSIAN_BITBUCKET_APP_PASSWORD"
     ["github-mcp:token"]="GITHUB_PERSONAL_ACCESS_TOKEN"
     ["api_keys:OPENAI_API_KEY"]="OPENAI_API_KEY"
