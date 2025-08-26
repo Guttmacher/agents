@@ -210,7 +210,7 @@ upload_to_host() {
     # Add remote keychain unlock using provided password
     upload_script+="# Unlock the remote keychain using provided password\n"
     upload_script+="if [[ -n \"\${REMOTE_KEYCHAIN_PASSWORD:-}\" ]]; then\n"
-    upload_script+="  if ! echo \"\$REMOTE_KEYCHAIN_PASSWORD\" | security unlock-keychain -p; then\n"
+    upload_script+="  if ! security unlock-keychain -p \"\$REMOTE_KEYCHAIN_PASSWORD\"; then\n"
     upload_script+="    echo 'x|keychain|unlock_failed'\n"
     upload_script+="    exit 1\n"
     upload_script+="  fi\n"
