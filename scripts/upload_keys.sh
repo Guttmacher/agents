@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # upload_keys.sh - Upload keychain credentials to remote SSH hosts
 # Extracts keys from local macOS keychain and uploads them to remote macOS hosts
@@ -17,22 +17,23 @@ NC='\033[0m' # Reset to default color
 # Associative array mapping keychain locations to environment variable names
 # Format: "service_name:account_name"="ENV_VAR_NAME"
 # These define what keys to extract from macOS keychain and where to store them remotely
-declare -A KEYS=(
-    ["atlassian-mcp:domain"]="ATLASSIAN_DOMAIN"
-    ["atlassian-mcp:email"]="ATLASSIAN_EMAIL"
-    ["atlassian-mcp:token"]="ATLASSIAN_API_TOKEN"
-    ["bitbucket-mcp:username"]="ATLASSIAN_BITBUCKET_USERNAME"
-    ["bitbucket-mcp:app-password"]="ATLASSIAN_BITBUCKET_APP_PASSWORD"
-    ["github-mcp:token"]="GITHUB_PERSONAL_ACCESS_TOKEN"
-    ["api_keys:OPENAI_API_KEY"]="OPENAI_API_KEY"
-    ["api_keys:ANTHROPIC_API_KEY"]="ANTHROPIC_API_KEY"
-)
+declare -A KEYS
+KEYS["atlassian-mcp:domain"]="ATLASSIAN_DOMAIN"
+KEYS["atlassian-mcp:email"]="ATLASSIAN_EMAIL"
+KEYS["atlassian-mcp:token"]="ATLASSIAN_API_TOKEN"
+KEYS["bitbucket-mcp:username"]="ATLASSIAN_BITBUCKET_USERNAME"
+KEYS["bitbucket-mcp:app-password"]="ATLASSIAN_BITBUCKET_APP_PASSWORD"
+KEYS["github-mcp:token"]="GITHUB_PERSONAL_ACCESS_TOKEN"
+KEYS["api_keys:OPENAI_API_KEY"]="OPENAI_API_KEY"
+KEYS["api_keys:ANTHROPIC_API_KEY"]="ANTHROPIC_API_KEY"
 
 # Global variables to track upload results and host lists
 # RESULTS: associative array storing outcome for each key+host combination
 # HOST_LIST: array of hosts we'll upload to
+# SMOKE_TEST: flag to indicate if we're running in smoke test mode
 declare -A RESULTS
 declare -a HOST_LIST
+SMOKE_TEST=false
 
 # Extract a key from local macOS keychain
 # This only reads from local keychain, never writes secrets to files
@@ -69,7 +70,7 @@ get_ssh_hosts() {
     awk '/^Host / {for(i=2; i<=NF; i++) if($i !~ /[*?]/) print $i}' ~/.ssh/config | sort -u | while read -r host; do
         # ssh -G shows the effective configuration for this host
         # grep -q does a quiet search (no output, just exit code)
-        if [[ -n "$host" ]] && ssh -F ~/.ssh/config -G "$host" 2>/dev/null | grep -q "forwardagent yes"; then
+        if [[ -n "$host" ]] && ssh -G "$host" 2>/dev/null | grep -q "forwardagent yes"; then
             echo "$host"  # Output qualifying host names
         fi
     done
@@ -106,7 +107,7 @@ confirm_hosts() {
     echo
 }
 
-# Upload all keys to a single remote host
+# Upload all keys to a single remote host (or test connectivity in smoke test mode)
 # Keys are passed as environment variables through SSH, never written to files
 upload_to_host() {
     local host="$1"           # Target hostname
@@ -115,17 +116,50 @@ upload_to_host() {
     
     echo -e "${BLUE}Processing host: $host${NC}"
     
-    # Start building the script that will run on the remote host
-    upload_script="#!/bin/bash\nset -e\n\n"  # set -e makes remote script exit on errors
-
-    # Ensure remote 'security' tool is available (macOS-only)
-    if ! ssh -o BatchMode=yes -o ConnectTimeout=5 "$host" 'command -v security >/dev/null 2>&1'; then
-        echo -e "${RED}  'security' tool not available on $host${NC}"
+    # Check SSH connectivity and remote 'security' tool availability
+    local ssh_test_result
+    if ssh_test_result=$(ssh -o ConnectTimeout=5 "$host" 'command -v security >/dev/null 2>&1 && echo "security_ok"' 2>&1); then
+        if [[ "$ssh_test_result" =~ security_ok ]]; then
+            # SSH connection successful and security tool available
+            true
+        else
+            echo -e "${RED}  'security' tool not available on $host${NC}"
+            for key_def in "${!KEYS[@]}"; do
+                RESULTS["${key_def}:${host}"]="x"
+            done
+            return 1
+        fi
+    else
+        echo -e "${RED}  SSH connection failed to $host: ${ssh_test_result}${NC}"
         for key_def in "${!KEYS[@]}"; do
             RESULTS["${key_def}:${host}"]="x"
         done
         return 1
     fi
+    
+    # In smoke test mode, just verify connectivity and security tool availability
+    if [[ "$SMOKE_TEST" == true ]]; then
+        echo -e "${GREEN}  ✓ SSH connection successful${NC}"
+        echo -e "${GREEN}  ✓ 'security' tool available${NC}"
+        
+        # Check which keys are available locally
+        for key_def in "${!KEYS[@]}"; do
+            IFS=':' read -r service_name account <<< "$key_def"
+            local env_var="${KEYS[$key_def]}"
+            
+            if extract_key "$service_name" "$account" >/dev/null 2>&1; then
+                echo -e "${GREEN}  ✓ Local key found: $env_var${NC}"
+                RESULTS["${key_def}:${host}"]="smoke_ok"
+            else
+                echo -e "${YELLOW}  ! Local key missing: $env_var${NC}"
+                RESULTS["${key_def}:${host}"]="missing"
+            fi
+        done
+        return 0
+    fi
+    
+    # Start building the script that will run on the remote host (non-smoke test mode)
+    upload_script="#!/bin/bash\nset -e\n\n"  # set -e makes remote script exit on errors
     
     # Process each key definition
     for key_def in "${!KEYS[@]}"; do  # "${!KEYS[@]}" expands to all keys in associative array
@@ -194,18 +228,22 @@ upload_to_host() {
 # Display a formatted table showing upload results
 # Only displays status information, never shows actual key values
 print_summary() {
-    echo -e "\n${BLUE}=== UPLOAD SUMMARY ===${NC}"
+    if [[ "$SMOKE_TEST" == true ]]; then
+        echo -e "\n${BLUE}=== SMOKE TEST SUMMARY ===${NC}"
+    else
+        echo -e "\n${BLUE}=== UPLOAD SUMMARY ===${NC}"
+    fi
     echo
     
     # Print table header row
-    printf "%-30s" "Key"  # %-30s = left-aligned, 30 characters wide
+    printf "%-35s" "Key"  # %-35s = left-aligned, 35 characters wide
     for host in "${HOST_LIST[@]}"; do
         printf " %10s" "$host"  # %10s = right-aligned, 10 characters wide
     done
     echo
     
     # Print separator line
-    printf "%-30s" "$(printf '%*s' 30 '' | tr ' ' '-')"  # Create 30 dashes
+    printf "%-35s" "$(printf '%*s' 35 '' | tr ' ' '-')"  # Create 35 dashes
     for host in "${HOST_LIST[@]}"; do
         printf " %10s" "------------"  # 12 dashes for each host column
     done
@@ -214,17 +252,18 @@ print_summary() {
     # Print results for each key
     for key_def in "${!KEYS[@]}"; do
         local display_key="${KEYS[$key_def]}"  # Use env var name for display
-        printf "%-30s" "$display_key"
+        printf "%-35s" "$display_key"
         
         for host in "${HOST_LIST[@]}"; do
             # Get result for this key+host combination, default to "x" if not found
             local result="${RESULTS["${key_def}:${host}"]:-x}"
             case "$result" in
-                "a") printf " %10s" "${GREEN}added${NC}" ;;       # New key
-                "r") printf " %10s" "${YELLOW}replaced${NC}" ;;   # Existing key updated
-                "x") printf " %10s" "${RED}error${NC}" ;;       # Failed to upload
-                "missing") printf " %10s" "---" ;;               # Key not found locally
-                *) printf " %10s" "${RED}unknown${NC}" ;;        # Unexpected status
+                "a") printf "     %b     " "${GREEN}added${NC}" ;;       # New key (5 spaces + content + 5 spaces = 12)
+                "r") printf "   %b   " "${YELLOW}replaced${NC}" ;;   # Existing key updated (3 + content + 3 = 12)
+                "x") printf "     %b     " "${RED}error${NC}" ;;       # Failed to upload (5 + content + 5 = 12)
+                "missing") printf "     ---     " ;;               # Key not found locally (5 + 3 + 4 = 12)
+                "smoke_ok") printf "     %b      " "${GREEN}✓${NC}" ;;   # Smoke test passed (5 + content + 6 = 12)
+                *) printf "   %b   " "${RED}unknown${NC}" ;;        # Unexpected status (3 + content + 3 = 12)
             esac
         done
         echo  # New line after each key row
@@ -232,11 +271,56 @@ print_summary() {
     echo  # Extra blank line after table
 }
 
+# Show usage information
+show_usage() {
+    echo "Usage: $0 [--smoke-test] [--help]"
+    echo
+    echo "Options:"
+    echo "  --smoke-test    Run in smoke test mode - verify connectivity and key availability"
+    echo "                  without uploading or modifying any keys"
+    echo "  --help          Show this help message"
+    echo
+    echo "Description:"
+    echo "  This script uploads keychain credentials from the local macOS keychain to"
+    echo "  remote SSH hosts that have ForwardAgent enabled."
+    echo
+    echo "  In normal mode, it extracts keys from the local keychain and uploads them"
+    echo "  to the remote hosts' keychains."
+    echo
+    echo "  In smoke test mode (--smoke-test), it:"
+    echo "  - Reads keys from the local keychain (without exposing values)"
+    echo "  - Connects to each remote machine"
+    echo "  - Checks for the 'security' tool availability"
+    echo "  - Reports which keys are available locally"
+    echo "  - Does NOT upload or modify any keys"
+}
+
 # Main execution function - coordinates the entire upload process
 # Orchestrator - it doesn't handle secrets directly
 main() {
-    echo -e "${BLUE}SSH Keychain Upload Tool${NC}"
-    echo "================================"
+    # Parse command line arguments
+    case "${1:-}" in
+        "--smoke-test")
+            SMOKE_TEST=true
+            echo -e "${BLUE}SSH Keychain Smoke Test${NC}"
+            echo "================================"
+            echo -e "${YELLOW}Running in smoke test mode - no keys will be uploaded${NC}"
+            ;;
+        "--help"|"-h")
+            show_usage
+            exit 0
+            ;;
+        "")
+            echo -e "${BLUE}SSH Keychain Upload Tool${NC}"
+            echo "================================"
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown option '$1'${NC}" >&2
+            echo
+            show_usage
+            exit 1
+            ;;
+    esac
     echo
     
     # Discover hosts with ForwardAgent enabled
@@ -250,18 +334,48 @@ main() {
     # Show hosts to user and get confirmation
     confirm_hosts "${detected_hosts[@]}"
     
-    # Upload keys to each host
-    echo -e "${BLUE}Starting key upload process...${NC}"
+    # Process each host (upload keys or run smoke test)
+    if [[ "$SMOKE_TEST" == true ]]; then
+        echo -e "${BLUE}Starting smoke test process...${NC}"
+    else
+        echo -e "${BLUE}Starting key upload process...${NC}"
+    fi
     echo
     
     for host in "${HOST_LIST[@]}"; do
         # || echo ensures we continue even if one host fails
-        upload_to_host "$host" || echo -e "${RED}  Failed to upload to $host${NC}"
+        upload_to_host "$host" || echo -e "${RED}  Failed to process $host${NC}"
         echo
     done
     
     # Display final results
     print_summary
+    
+    # Exit with appropriate status for smoke test
+    if [[ "$SMOKE_TEST" == true ]]; then
+        local failed_hosts=0
+        for host in "${HOST_LIST[@]}"; do
+            local host_failed=false
+            for key_def in "${!KEYS[@]}"; do
+                local result="${RESULTS["${key_def}:${host}"]:-x}"
+                if [[ "$result" == "x" ]]; then
+                    host_failed=true
+                    break
+                fi
+            done
+            if [[ "$host_failed" == true ]]; then
+                ((failed_hosts++))
+            fi
+        done
+        
+        if [[ $failed_hosts -gt 0 ]]; then
+            echo -e "${RED}Smoke test failed for $failed_hosts host(s)${NC}"
+            exit 1
+        else
+            echo -e "${GREEN}Smoke test passed for all hosts${NC}"
+            exit 0
+        fi
+    fi
 }
 
 # Only run main if this script is executed directly (not sourced)
