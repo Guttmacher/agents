@@ -1,6 +1,6 @@
-# Modes & Tools Reference
+# Custom Modes & MCP Server Setup
 
-Reference for Copilot modes, models, MCP servers, and cross-tool custom instruction usage.
+This repository provides configuration files, scripts, and documentation for setting up custom modes and MCP servers across multiple AI coding assistants.
 
 ## Repository Structure
 
