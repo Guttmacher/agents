@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# Bash version guard - require bash 4.0 or newer for associative arrays
+if [[ ${BASH_VERSINFO[0]} -lt 4 ]]; then
+    echo "Error: This script requires bash 4.0 or newer for associative array support." >&2
+    echo "Current bash version: ${BASH_VERSION}" >&2
+    echo "On macOS, install a newer bash with: brew install bash" >&2
+    echo "Then either update your PATH or use the full path: /opt/homebrew/bin/bash" >&2
+    exit 1
+fi
+
 # upload_keys.sh - Upload keychain credentials to remote SSH hosts
 # Extracts keys from local macOS keychain and uploads them to remote macOS hosts
 
