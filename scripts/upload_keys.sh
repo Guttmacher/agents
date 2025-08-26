@@ -330,12 +330,12 @@ print_summary() {
             # Get result for this key+host combination, default to "x" if not found
             local result="${RESULTS["${key_def}:${host}"]:-x}"
             case "$result" in
-                "a") printf "     %b     " "${GREEN}added${NC}" ;;       # New key (4 spaces + content (5) + 4 spaces = 13)
-                "r") printf "   %b  " "${YELLOW}replaced${NC}" ;;   # Existing key updated (3 + content (8) + 2 = 13)
-                "x") printf "     %b    " "${RED}error${NC}" ;;       # Failed to upload (4 + content (5) + 4 = 13)
-                "missing") printf "     ---     " ;;               # Key not found locally (5 + 3 + 5 = 13)
-                "smoke_ok") printf "      %b      " "${GREEN}✓${NC}" ;;   # Smoke test passed (6 + content (1) + 6 = 13)
-                *) printf "   %b   " "${RED}unknown${NC}" ;;        # Unexpected status (3 + content (7) + 3 = 13)
+                "a") printf " %b" "$(center_colored_text "${GREEN}added${NC}" 12)" ;;       # New key
+                "r") printf " %b" "$(center_colored_text "${YELLOW}replaced${NC}" 12)" ;;   # Existing key updated
+                "x") printf " %b" "$(center_colored_text "${RED}error${NC}" 12)" ;;       # Failed to upload
+                "missing") printf " %s" "$(center_text "---" 12)" ;;               # Key not found locally
+                "smoke_ok") printf " %b" "$(center_colored_text "${GREEN}✓${NC}" 12)" ;;   # Smoke test passed
+                *) printf " %b" "$(center_colored_text "${RED}unknown${NC}" 12)" ;;        # Unexpected status
             esac
         done
         echo  # New line after each key row
@@ -404,6 +404,20 @@ center_text() {
     local padding=$(( (width - text_len) / 2 ))
     local right_padding=$(( width - text_len - padding ))
     printf "%*s%s%*s" "$padding" "" "$text" "$right_padding" ""
+}
+
+# Center colored text within a specified width (handles ANSI codes)
+center_colored_text() {
+    local colored_text="$1"
+    local width="$2"
+    
+    # Remove ANSI color codes to get actual text length
+    local plain_text=$(echo -e "$colored_text" | sed 's/\x1b\[[0-9;]*m//g')
+    local text_len=${#plain_text}
+    local padding=$(( (width - text_len) / 2 ))
+    local right_padding=$(( width - text_len - padding ))
+    
+    printf "%*s%s%*s" "$padding" "" "$colored_text" "$right_padding" ""
 }
 
 # Check local key availability
