@@ -18,26 +18,24 @@ NC='\033[0m' # Reset to default color
 # Format: "service_name:account_name"="ENV_VAR_NAME"
 # These define what keys to extract from macOS keychain and where to store them remotely
 declare -A KEYS=(
-    ["atlassian-mcp:domain"]="ATLASSIAN_DOMAIN"
+    ["atlassian-mcp:atlassian-domain"]="ATLASSIAN_DOMAIN"
     ["atlassian-mcp:email"]="ATLASSIAN_EMAIL"
     ["atlassian-mcp:token"]="ATLASSIAN_API_TOKEN"
-    ["bitbucket-mcp:username"]="ATLASSIAN_BITBUCKET_USERNAME"
+    ["bitbucket-mcp:bitbucket-username"]="ATLASSIAN_BITBUCKET_USERNAME"
     ["bitbucket-mcp:app-password"]="ATLASSIAN_BITBUCKET_APP_PASSWORD"
     ["github-mcp:token"]="GITHUB_PERSONAL_ACCESS_TOKEN"
     ["api_keys:OPENAI_API_KEY"]="OPENAI_API_KEY"
     ["api_keys:ANTHROPIC_API_KEY"]="ANTHROPIC_API_KEY"
 )
 
-# Global variables to track upload results and host/key lists
+# Global variables to track upload results and host lists
 # RESULTS: associative array storing outcome for each key+host combination
 # HOST_LIST: array of hosts we'll upload to
-# KEY_LIST: array of key definitions (currently unused but reserved)
 declare -A RESULTS
 declare -a HOST_LIST
-declare -a KEY_LIST
 
 # Extract a key from local macOS keychain
-# SECURITY NOTE: This only reads from local keychain, never writes secrets to files
+# This only reads from local keychain, never writes secrets to files
 extract_key() {
     local service_name="$1"  # Keychain service name (e.g., "github-mcp")
     local account="$2"       # Account name within that service
@@ -55,7 +53,7 @@ extract_key() {
 }
 
 # Discover SSH hosts that have ForwardAgent enabled
-# SECURITY NOTE: Only reads SSH config, doesn't modify anything
+# Only reads SSH config, doesn't modify anything
 get_ssh_hosts() {
     local hosts=()  # Local array (not used in current implementation)
     
@@ -78,7 +76,7 @@ get_ssh_hosts() {
 }
 
 # Show detected hosts to user and allow override
-# SECURITY NOTE: Only displays information and gets user input, no file operations
+# Only displays information and gets user input, no file operations
 confirm_hosts() {
     local detected_hosts=("$@")  # "$@" expands to all function arguments as separate elements
     
@@ -109,7 +107,7 @@ confirm_hosts() {
 }
 
 # Upload all keys to a single remote host
-# SECURITY NOTE: Keys are passed as environment variables through SSH, never written to files
+# Keys are passed as environment variables through SSH, never written to files
 upload_to_host() {
     local host="$1"           # Target hostname
     local env_vars=()         # Array to hold "VAR=value" pairs for SSH
@@ -119,6 +117,15 @@ upload_to_host() {
     
     # Start building the script that will run on the remote host
     upload_script="#!/bin/bash\nset -e\n\n"  # set -e makes remote script exit on errors
+
+    # Ensure remote 'security' tool is available (macOS-only)
+    if ! ssh -o BatchMode=yes -o ConnectTimeout=5 "$host" 'command -v security >/dev/null 2>&1'; then
+        echo -e "${RED}  'security' tool not available on $host${NC}"
+        for key_def in "${!KEYS[@]}"; do
+            RESULTS["${key_def}:${host}"]="x"
+        done
+        return 1
+    fi
     
     # Process each key definition
     for key_def in "${!KEYS[@]}"; do  # "${!KEYS[@]}" expands to all keys in associative array
@@ -139,14 +146,14 @@ upload_to_host() {
             # Check if key already exists in remote keychain
             upload_script+="  if security find-generic-password -s \"$service_name\" -a \"$account\" >/dev/null 2>&1; then\n"
             upload_script+="    security delete-generic-password -s \"$service_name\" -a \"$account\" 2>/dev/null || true\n"
-            upload_script+="    echo \"r:${key_def}\"\n"  # Report "replaced"
+            upload_script+="    echo \"r|${key_def}\"\n"  # Report "replaced"
             upload_script+="  else\n"
-            upload_script+="    echo \"a:${key_def}\"\n"  # Report "added"
+            upload_script+="    echo \"a|${key_def}\"\n"  # Report "added"
             upload_script+="  fi\n"
             # Add the new key to remote keychain (-U allows updates)
             upload_script+="  security add-generic-password -s \"$service_name\" -a \"$account\" -w \"\${${env_var}}\" -U\n"
             upload_script+="else\n"
-            upload_script+="  echo \"x:${key_def}:missing_env_var\"\n"  # Report error
+            upload_script+="  echo \"x|${key_def}|missing_env_var\"\n"  # Report error
             upload_script+="fi\n\n"
         else
             # Key not found locally - mark as missing
@@ -165,10 +172,10 @@ upload_to_host() {
     # env sets environment variables for the SSH session
     # 'bash -s' tells SSH to run bash and read script from stdin
     local ssh_result
-    if ssh_result=$(printf '%b' "$upload_script" | env "${env_vars[@]}" ssh "$host" 'bash -s' 2>&1); then
+    if ssh_result=$(printf '%b' "$upload_script" | ssh "$host" env "${env_vars[@]}" bash -s 2>&1); then
         # Parse the results returned by remote script
         # <<< creates a here-string from the variable
-        while IFS=':' read -r status key_def error_msg; do
+        while IFS='|' read -r status key_def error_msg; do
             case "$status" in
                 "a"|"r") RESULTS["${key_def}:${host}"]="$status" ;;  # Success cases
                 "x") RESULTS["${key_def}:${host}"]="x" ;;              # Error case
@@ -185,7 +192,7 @@ upload_to_host() {
 }
 
 # Display a formatted table showing upload results
-# SECURITY NOTE: Only displays status information, never shows actual key values
+# Only displays status information, never shows actual key values
 print_summary() {
     echo -e "\n${BLUE}=== UPLOAD SUMMARY ===${NC}"
     echo
@@ -200,7 +207,7 @@ print_summary() {
     # Print separator line
     printf "%-30s" "$(printf '%*s' 30 '' | tr ' ' '-')"  # Create 30 dashes
     for host in "${HOST_LIST[@]}"; do
-        printf " %10s" "----------"  # 10 dashes for each host column
+        printf " %10s" "------------"  # 12 dashes for each host column
     done
     echo
     
@@ -226,7 +233,7 @@ print_summary() {
 }
 
 # Main execution function - coordinates the entire upload process
-# SECURITY NOTE: This is the orchestrator - it doesn't handle secrets directly
+# Orchestrator - it doesn't handle secrets directly
 main() {
     echo -e "${BLUE}SSH Keychain Upload Tool${NC}"
     echo "================================"
@@ -242,11 +249,6 @@ main() {
     
     # Show hosts to user and get confirmation
     confirm_hosts "${detected_hosts[@]}"
-    
-    # Initialize key list (currently unused but reserved for future features)
-    for key_def in "${!KEYS[@]}"; do
-        KEY_LIST+=("$key_def")
-    done
     
     # Upload keys to each host
     echo -e "${BLUE}Starting key upload process...${NC}"
