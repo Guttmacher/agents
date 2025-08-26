@@ -56,7 +56,6 @@ extract_key() {
 # Discover SSH hosts that have ForwardAgent enabled
 # Only reads SSH config, doesn't modify anything
 get_ssh_hosts() {
-    local hosts=()  # Local array (not used in current implementation)
     
     # Check if SSH config file exists
     if [[ ! -f ~/.ssh/config ]]; then
@@ -317,7 +316,7 @@ print_summary() {
     # Print separator line
     printf "%-35s" "$(printf '%*s' 35 '' | tr ' ' '-')"  # Create 35 dashes
     for host in "${HOST_LIST[@]}"; do
-        printf " %10s" "------------"  # 12 dashes for each host column
+        printf " %12s" "------------"  # 12 dashes for each host column
     done
     echo
     
@@ -401,8 +400,12 @@ center_text() {
     local text="$1"
     local width="$2"
     local text_len=${#text}
-    local padding=$(( (width - text_len) / 2 ))
-    local right_padding=$(( width - text_len - padding ))
+    local pad_total=$(( width - text_len ))
+    if (( pad_total < 0 )); then
+        pad_total=0
+    fi
+    local padding=$(( pad_total / 2 ))
+    local right_padding=$(( pad_total - padding ))
     printf "%*s%s%*s" "$padding" "" "$text" "$right_padding" ""
 }
 
@@ -414,8 +417,12 @@ center_colored_text() {
     # Remove ANSI color codes to get actual text length
     local plain_text=$(echo -e "$colored_text" | sed 's/\x1b\[[0-9;]*m//g')
     local text_len=${#plain_text}
-    local padding=$(( (width - text_len) / 2 ))
-    local right_padding=$(( width - text_len - padding ))
+    local pad_total=$(( width - text_len ))
+    if (( pad_total < 0 )); then
+        pad_total=0
+    fi
+    local padding=$(( pad_total / 2 ))
+    local right_padding=$(( pad_total - padding ))
     
     printf "%*s%s%*s" "$padding" "" "$colored_text" "$right_padding" ""
 }
