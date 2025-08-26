@@ -201,8 +201,37 @@ upload_to_host() {
         return 0
     fi
     
-    # Start building the script that will run on the remote host (non-smoke test mode)
+    # Add remote keychain password to environment variables (if not smoke test)
+    if [[ "$SMOKE_TEST" != true && -n "${REMOTE_KEYCHAIN_PASSWORD:-}" ]]; then
+        env_vars+=("REMOTE_KEYCHAIN_PASSWORD=${REMOTE_KEYCHAIN_PASSWORD}")
+    fi
     upload_script="#!/bin/bash\nset -e\n\n"  # set -e makes remote script exit on errors
+    
+    # Add remote keychain unlock using provided password
+    upload_script+="# Unlock the remote keychain using provided password\n"
+    upload_script+="if [[ -n \"\${REMOTE_KEYCHAIN_PASSWORD:-}\" ]]; then\n"
+    upload_script+="  if ! echo \"\$REMOTE_KEYCHAIN_PASSWORD\" | security unlock-keychain -p; then\n"
+    upload_script+="    echo 'x|keychain|unlock_failed'\n"
+    upload_script+="    exit 1\n"
+    upload_script+="  fi\n"
+    upload_script+="else\n"
+    upload_script+="  echo 'x|keychain|no_password_provided'\n"
+    upload_script+="  exit 1\n"
+    upload_script+="fi\n\n"
+    
+    # Add remote keychain access test
+    upload_script+="# Test if we can access the remote keychain\n"
+    upload_script+="if ! security list-keychains -d user >/dev/null 2>&1; then\n"
+    upload_script+="  echo 'x|keychain|cannot_access_keychains'\n"
+    upload_script+="  exit 1\n"
+    upload_script+="fi\n\n"
+    upload_script+="# Test keychain write access by trying to add a test entry\n"
+    upload_script+="if ! security add-generic-password -s 'test-write-access' -a 'test' -w 'test' -U 2>/dev/null; then\n"
+    upload_script+="  echo 'x|keychain|keychain_locked_or_no_write_access'\n"
+    upload_script+="  exit 1\n"
+    upload_script+="fi\n"
+    upload_script+="# Clean up test entry\n"
+    upload_script+="security delete-generic-password -s 'test-write-access' -a 'test' 2>/dev/null || true\n\n"
     
     # Process each key definition
     for key_def in "${!KEYS[@]}"; do  # "${!KEYS[@]}" expands to all keys in associative array
@@ -314,6 +343,59 @@ print_summary() {
     echo  # Extra blank line after table
 }
 
+# Get remote keychain password from user
+get_remote_keychain_password() {
+    if [[ "$SMOKE_TEST" == true ]]; then
+        return 0  # No password needed for smoke test
+    fi
+    
+    echo -e "${BLUE}Remote keychain unlock required${NC}"
+    echo "The script needs to unlock the keychain on remote hosts to store credentials."
+    echo -n "Enter your remote keychain password (will be hidden): "
+    read -s REMOTE_KEYCHAIN_PASSWORD
+    echo
+    
+    if [[ -z "$REMOTE_KEYCHAIN_PASSWORD" ]]; then
+        echo -e "${RED}Password cannot be empty${NC}"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Unlock the keychain if needed
+unlock_keychain() {
+    echo -e "${BLUE}Checking keychain access...${NC}"
+    
+    # Test if we can access the keychain by trying to read one of our actual keys
+    # We'll use the first key in our KEYS array for testing
+    local first_key_def
+    for key_def in "${!KEYS[@]}"; do
+        first_key_def="$key_def"
+        break
+    done
+    
+    if [[ -n "$first_key_def" ]]; then
+        IFS=':' read -r service_name account <<< "$first_key_def"
+        
+        # Try to access an actual key (without showing the value)
+        if extract_key "$service_name" "$account" >/dev/null 2>&1; then
+            echo -e "${GREEN}  ✓ Keychain is accessible${NC}"
+            return 0
+        fi
+    fi
+    
+    # If we can't access keys, try to unlock the keychain
+    echo -e "${YELLOW}  Keychain appears to be locked. Attempting to unlock...${NC}"
+    if security unlock-keychain; then
+        echo -e "${GREEN}  ✓ Keychain unlocked successfully${NC}"
+        return 0
+    else
+        echo -e "${RED}  ✗ Failed to unlock keychain${NC}"
+        return 1
+    fi
+}
+
 # Center text within a specified width
 center_text() {
     local text="$1"
@@ -405,8 +487,20 @@ main() {
     # Show hosts to user and get confirmation
     confirm_hosts "${detected_hosts[@]}"
     
+    # Unlock keychain if needed
+    if ! unlock_keychain; then
+        echo -e "${RED}Cannot proceed without keychain access${NC}"
+        exit 1
+    fi
+    
     # Check local keys once at the beginning (both modes)
     check_local_keys
+    
+    # Get remote keychain password if needed (normal mode only)
+    if ! get_remote_keychain_password; then
+        echo -e "${RED}Cannot proceed without remote keychain password${NC}"
+        exit 1
+    fi
     
     # Process each host (upload keys or run smoke test)
     if [[ "$SMOKE_TEST" == true ]]; then
