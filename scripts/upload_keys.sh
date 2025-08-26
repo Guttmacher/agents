@@ -258,12 +258,12 @@ print_summary() {
             # Get result for this key+host combination, default to "x" if not found
             local result="${RESULTS["${key_def}:${host}"]:-x}"
             case "$result" in
-                "a") printf "     %b     " "${GREEN}added${NC}" ;;       # New key (5 spaces + content + 5 spaces = 12)
-                "r") printf "   %b   " "${YELLOW}replaced${NC}" ;;   # Existing key updated (3 + content + 3 = 12)
-                "x") printf "     %b     " "${RED}error${NC}" ;;       # Failed to upload (5 + content + 5 = 12)
-                "missing") printf "     ---     " ;;               # Key not found locally (5 + 3 + 4 = 12)
-                "smoke_ok") printf "     %b      " "${GREEN}✓${NC}" ;;   # Smoke test passed (5 + content + 6 = 12)
-                *) printf "   %b   " "${RED}unknown${NC}" ;;        # Unexpected status (3 + content + 3 = 12)
+                "a") printf "     %b     " "${GREEN}added${NC}" ;;       # New key (4 spaces + content (5) + 4 spaces = 13)
+                "r") printf "   %b  " "${YELLOW}replaced${NC}" ;;   # Existing key updated (3 + content (8) + 2 = 13)
+                "x") printf "     %b    " "${RED}error${NC}" ;;       # Failed to upload (4 + content (5) + 4 = 13)
+                "missing") printf "     ---     " ;;               # Key not found locally (5 + 3 + 5 = 13)
+                "smoke_ok") printf "      %b      " "${GREEN}✓${NC}" ;;   # Smoke test passed (6 + content (1) + 6 = 13)
+                *) printf "   %b   " "${RED}unknown${NC}" ;;        # Unexpected status (3 + content (7) + 3 = 13)
             esac
         done
         echo  # New line after each key row
