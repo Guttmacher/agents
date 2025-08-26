@@ -1,0 +1,52 @@
+{
+  "name": "q_cli_default",
+  "description": "Default CLI agent with MCP servers",
+  "hooks": {},
+  "mcpServers": {
+    "Atlassian": {
+      "command": "bash",
+      "args": ["-c", "~/bin/mcp-atlassian-wrapper.sh"],
+      "working_directory": null
+    },
+    "Bitbucket": {
+      "command": "bash",
+      "args": ["-c", "~/bin/mcp-bitbucket-wrapper.sh"],
+      "working_directory": null
+    },
+    "Context7": {
+      "command": "bash",
+      "args": ["-c", "~/bin/mcp-context7-wrapper.sh"],
+      "working_directory": null
+    },
+    "GitHub": {
+      "command": "bash",
+      "args": ["-c", "~/bin/mcp-github-wrapper.sh"],
+      "working_directory": null
+    }
+  },
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "knowledge",
+    "thinking",
+    "@Atlassian",
+    "@Bitbucket",
+    "@Context7",
+    "@GitHub"
+  ],
+  "toolAliases": {},
+  "allowedTools": [
+    "fs_read"
+  ],
+  "resources": [
+    "file://AmazonQ.md",
+    "file://README.md",
+    "file://.amazonq/rules/**/*.md",
+    "file://CLAUDE.md",
+    "file://WARP.md",
+    "file://AGENTS.md",
+    "file://.github/copilot-instructions.md"
+  ],
+  "prompt": null
+}
