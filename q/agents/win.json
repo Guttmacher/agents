@@ -1,0 +1,76 @@
+{
+  "name": "default-agent",
+  "version": "1.0.0",
+  "description": "Default agent configuration",
+  "mcpServers": {
+    "Atlassian": {
+      "command": "C:\\Users\\<username>\\bin\\mcp-atlassian-wrapper.sh",
+      "timeout": 60000,
+      "disabled": false
+    },
+    "Bitbucket": {
+      "command": "C:\\Users\\<username>\\bin\\mcp-bitbucket-wrapper.sh",
+      "timeout": 60000,
+      "disabled": false
+    },
+    "GitHub": {
+      "command": "C:\\Users\\<username>\\bin\\mcp-github-wrapper.sh",
+      "timeout": 60000,
+      "disabled": false
+    },
+    "Context7": {
+      "command": "C:\\Users\\<username>\\bin\\mcp-context7-wrapper.sh",
+      "disabled": false,
+      "timeout": 60000
+    }
+  },
+  "tools": [
+    "fsRead",
+    "fsWrite",
+    "fsReplace",
+    "listDirectory",
+    "fileSearch",
+    "executeBash",
+    "codeReview",
+    "displayFindings",
+    "@Atlassian",
+    "@Bitbucket",
+    "@GitHub",
+    "@Context7"
+  ],
+  "allowedTools": [
+    "fsRead",
+    "listDirectory",
+    "fileSearch",
+    "codeReview",
+    "displayFindings",
+    "@Context7/resolve-library-id",
+    "@Context7/get-library-docs"
+  ],
+  "toolsSettings": {
+    "execute_bash": {
+      "alwaysAllow": [
+        {
+          "preset": "readOnly"
+        }
+      ]
+    },
+    "use_aws": {
+      "alwaysAllow": [
+        {
+          "preset": "readOnly"
+        }
+      ]
+    }
+  },
+  "includedFiles": [
+    "AmazonQ.md",
+    "README.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".github/copilot-instructions.md",
+    ".amazonq/rules/**/*.md"
+  ],
+  "resources": [],
+  "promptHooks": []
+}

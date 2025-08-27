@@ -1,6 +1,6 @@
-# Modes & Tools Reference
+# AI Assistant Setup & Configuration
 
-Reference for Copilot modes, models, MCP servers, and cross-tool custom instruction usage.
+This repository provides installation guides, configuration files, scripts, and documentation for setting up GitHub Copilot, Claude Desktop, Q, and other AI coding assistants with custom modes and MCP servers.
 
 ## Repository Structure
 
@@ -33,9 +33,68 @@ Reference for Copilot modes, models, MCP servers, and cross-tool custom instruct
     └── smoke_rules.R                # R script for validating tool lists/matrix consistency
 ```
 
-## Modes
+## AI Assistants
 
-### Modes Overview
+This repository provides guidance to configure three primary AI assistants -- GitHub Copilot, Claude Desktop, and Q.
+
+### Comparison of capabilities
+|                                               | GitHub Copilot  | Claude Desktop | Q             |
+|-----------------------------------------------|------------------|----------------|---------------|
+| Graphic user interface                        | ✅              | ✅              | ✅            |
+| Command line interface                        | ❌              | ❌              | ✅            |
+| Messages with broader or non-coding scope     | ❌              | ✅              | ❌            |
+| Web Search                                    | ❌              | ✅              | ❌            |
+| Custom Modes                                  | ✅              | ❌              | only in CLI   |
+| Ghost text (aka tab-completions)              | ✅              | n/a             | ✅            |
+| Next-edit suggestions                         | ✅              | n/a             | ❌            |
+| Annual cost per person                        | $228            | $300            | $228         |
+| Prompts per month                             | 300             | —               | ?            |
+| GPT-4.1 and 5 mini do not count towards limit | ✅              | n/a              | n/a          |
+| Additional usage                              | $.04/prompt     | API pricing      | ?            |
+| Context window                                | 112k tokens     | 200k tokens      | 200k tokens  |
+
+
+Note: Amazon states that Q Developer Pro provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier, but do not state those limits. As of August 27, they write, "Additional usage included until previously specified 1000 requests," which suggests that will soon determine what the new limits are. They had previously stated these would be 1000; however, their equally priced [Kiro subscription](https://kiro.dev/pricing/) offers 125 "spec" requests and 225 "vibe requests" per month. For overages, they price a "spec" request four times the price of a "vibe" request. Since (125 x 4) + 225 = 725, this implies a corresponding Q usage limit of 725 monthly requests.
+
+### Installing Claude Desktop
+- Download the installer from the [Claude website](https://claude.ai/download) and follow the installation instructions.
+
+### Sign in to GitHub Copilot
+- From VS Code, follow the prompts to sign in to GitHub Copilot
+
+### Install and sign in to the Q extension for VS Code:
+- In VS Code, go to Extensions > search for [Amazon Q](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.amazon-q-vscode) > Install.
+- In the Q pane: select Company account > Continue > Paste start URL > Continue > follow the prompts.
+
+By default, Q takes over inline chat (`Ctrl+I` [Win] / `⌘I` [Mac]) from Copilot. To restore Copilot for inline chat, do either of the following:
+- Open Command Palette > Keyboard Shortcuts > search for `Amazon Q: Inline Chat` > right-click > Remove Keybinding.
+- Or, add this to keybindings.json:
+  ```json
+  {
+    "key": "cmd+i",
+    "command": "-aws.amazonq.inline.invokeChat",
+    "when": "aws.codewhisperer.connected && editorTextFocus"
+  }
+  ```
+
+For ghost text (tab completions), Copilot takes precedence over Q.
+- To use Q for ghost text: click the Copilot status bar icon > Code completions > uncheck "All files" and "Next edit suggestions".
+- To turn off Q ghost text: click the Amazon Q status bar item > Pause Auto-Suggestions
+
+Note: Both Q and Copilot can read images. However, Q requires you to save and attach image files; it does not accept images pasted from the clipboard.
+
+### To install and sign in to the Q command-line tool:
+- [The Q CLI does not yet to support Windows.](https://github.com/aws/amazon-q-developer-cli/issues/2602)
+- macOS:
+  - `brew install amazon-q` (or download from [GitHub](https://github.com/aws/amazon-q-cli))
+  - `q auth login`
+  - `q chat`
+
+> **Note:** The CLI option is especially useful for long-running tasks on remote machines (e.g., rover), as tasks will continue even if you close your laptop lid or disconnect. In contrast, GUI-based tools may drop the connection or interrupt the session when the lid is closed or the network changes.
+
+
+## Modes
+## Modes Overview
 
 We define **four categories** of modes for different use cases, that follow a **privilege gradient:** **QnA < Review** (adds review + issue comments) **< Plan** (adds planning artifact + PR creation/edit) **< Code** (full lifecycle incl. merge & branch ops).
 
@@ -523,7 +582,7 @@ Context7 provides up-to-date, version-specific documentation and code examples f
 
 1. Copy the wrapper script to your bin directory:
    - macOS: `cp scripts/mcp-context7-wrapper.sh ~/bin/ && chmod +x ~/bin/mcp-context7-wrapper.sh`
-   - Windows: Copy `scripts/mcp-context7-wrapper.ps1` to `%USERPROFILE%\bin\`
+   - Windows: `scripts/mcp-context7-wrapper.ps1` to `%USERPROFILE%\bin\`
 
 2. Test the wrapper:
    - macOS: `~/bin/mcp-context7-wrapper.sh --help`
@@ -544,7 +603,7 @@ The wrapper automatically uses the globally installed package if available, fall
 4. On the first line of the template file, replace "servers" with "mcpServers"
 5. Restart Claude Desktop
 
-#### Add MCP Servers to VS Code
+#### Add MCP Servers to GitHub Copilot (VS Code)
 
 1. Restart VS Code
 2. Command Palette -> List Servers
@@ -555,9 +614,43 @@ The wrapper automatically uses the globally installed package if available, fall
 2. Use the provided configuration: copy [`templates/mcp_mac.json`](templates/mcp_mac.json) (macOS) or [`templates/mcp_win.json`](templates/mcp_win.json) (Windows)
 3. Restart VS Code
 
+
 **Note:** On my Mac, VS Code detects and reads in the configuration from Claude Desktop. I could not figure out how to override this. On the one hand, not having to save and edit to configuration files saves time. On the other hand, I would like to know how to override this behavior because so I could configure them differently.
 
 ⚠️ If VS Code picks up the config from Claude Desktop, _and_ you _also_ add the same MCP servers to the VS Code's MCP config file, you will end up with duplicate MCP servers in the list. This could confuse the agents.
+
+#### Add MCP Servers to Q extension (VS Code)
+
+To add MCP servers to the Q extension in VS Code, download the appropriate template and save as:
+
+| OS      | Template                      | Save as                                          |
+|---------|-------------------------------|--------------------------------------------------|
+| Windows | [win.json](q/agents/win.json) | `%USERPROFILE%\.aws\amazonq\agents\default.json` |
+| macOS   | [mac.json](q/agents/mac.json) | `~/.aws/amazonq/agents/default.json`             |
+
+**Note:** You must edit the template to replace each instance of `<username>` with your Windows or macOS logon username.
+
+Alternatively, you can add each agent one-by-one using the menus in VS Code:
+
+1. From the Q pane, click the tools button (🛠️) ("Configure MCP Servers")
+2. Click the add button ("＋") ("Add new MCP Server")
+3. Paste the "Name" and "Command" fields from the table below
+4. Replace `<username>` with your OS username
+5. Press "Save"
+- Repeat steps 2–5 for each MCP server:
+
+| Name             | Command -- Windows                                     | Command -- macOS                                 |
+|------------------|--------------------------------------------------------|--------------------------------------------------|
+| Context7         | `C:\Users\<username>\bin\mcp-context7-wrapper.ps1`     | `/Users/<username>/bin/mcp-context7-wrapper.sh`  |
+| Atlassian        | `C:\Users\<username>\bin\mcp-atlassian-wrapper.ps1`    | `/Users/<username>/bin/mcp-atlassian-wrapper.sh` |
+| Bitbucket        | `C:\Users\<username>\bin\mcp-bitbucket-wrapper.ps1`    | `/Users/<username>/bin/mcp-bitbucket-wrapper.sh` |
+| GitHub           | `C:\Users\<username>\bin\mcp-github-wrapper.ps1`       | `/Users/<username>/bin/mcp-github-wrapper.sh`    |
+
+Note: Use the default for Scope ("Global") and Transport ("stdio"). (Should the defaults differ from these values, choose them.)
+
+#### Add MCP Servers to Q command-line tool
+
+- Save [agent_config.json](q/cli-agents/agent_config.json) to `~/.aws/amazonq/cli-agents/`
 
 ## LLM Coding Style Guidelines
 
@@ -605,9 +698,13 @@ Reference: [Adding personal custom instructions for GitHub Copilot](https://docs
 
 
 ### Q (Repository-Level)
+
+
 1. Create `.amazonq/rules/llm_coding_style_guidelines.txt` in the repository root
 2. Paste [templates/llm_code_style_guidelines.txt](templates/llm_code_style_guidelines.txt) content.
 3. Edit as/if needed/desired.
+
+**Note:** If you have installed our [templates](#add-mcp-servers-to-q-extension-vs-code), Q will look for `.github/copilot-instructions.md`, `AGENTS.md`, and `README.md` files. Therefore, copying the same rules to `.amazonq/rules` is redundant.
 
 ## Claude Code (Repository-Level)
 1. Create or edit `CLAUDE.md` in the repository root
@@ -719,7 +816,7 @@ Legend: ✅ available, ❌ unavailable in that mode.
 <td></td>
 </tr>
 <tr style="background-color: #f8f9fa;">
-<td><a href="TOOLS_GLOSSARY.md#problems">problems</a></td>
+<td><a href="TOOLS_GLOSSARY.md#problems">problems</a>
 <td>✅</td>
 <td>✅</td>
 <td>✅</td>
@@ -1979,4 +2076,5 @@ Legend: ✅ available, ❌ unavailable in that mode.
 <td>✅</td>
 </tr>
 </tbody>
+</table>
 </table>
