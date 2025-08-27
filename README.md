@@ -54,7 +54,7 @@ This repository provides guidance to configure three primary AI assistants -- Gi
 | Context window                                | 112k tokens     | 200k tokens      | 200k tokens  |
 
 
-Note: Amazon states that Q Developer Pro provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier, but do not state those limits. As of August 27, they write, "Additional usage included until previously specified 1000 requests," which suggests that will soon determine what the new limits are. They had previously stated these would be 1000; however, their equally priced [Kiro subscription](https://kiro.dev/pricing/) offers 125 "spec" requests and 225 "vibe requests" per month. For overages, they price a "spec" request four times the price of a "vibe" request. Since (125 x 4) + 225 = 725, this implies a corresponding Q usage limit of 725 monthly requests.
+Note: Amazon states that Q Developer Pro provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier, but do not state those limits. As of August 27, they write, "Additional usage included until Sep 1, 2025," which suggests that will soon determine what the new limits are. They had previously stated these would be 1000; however, their equally priced [Kiro subscription](https://kiro.dev/pricing/) offers 125 "spec" requests and 225 "vibe requests" per month. For overages, they price a "spec" request four times the price of a "vibe" request. Since (125 x 4) + 225 = 725, this implies a corresponding Q usage limit of 725 monthly requests.
 
 ### Installing Claude Desktop
 - Download the installer from the [Claude website](https://claude.ai/download) and follow the installation instructions.
