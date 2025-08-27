@@ -42,7 +42,7 @@ This repository provides guidance to configure three primary AI assistants -- Gi
 |-----------------------------------------------|------------------|----------------|---------------|
 | Graphic user interface                        | ✅              | ✅              | ✅            |
 | Command line interface                        | ❌              | ❌              | ✅            |
-| Broad Scope Queries                           | ❌              | ✅              | ❌            |
+| Messages with broader or non-coding scope     | ❌              | ✅              | ❌            |
 | Web Search                                    | ❌              | ✅              | ❌            |
 | Custom Modes                                  | ✅              | ❌              | only in CLI   |
 | Ghost text (aka tab-completions)              | ✅              | n/a             | ✅            |
@@ -51,7 +51,7 @@ This repository provides guidance to configure three primary AI assistants -- Gi
 | Prompts per month                             | 300             | —               | ?            |
 | GPT-4.1 and 5 mini do not count towards limit | ✅              | n/a              | n/a          |
 | Additional usage                              | $.04/prompt     | API pricing      | ?            |
-| Maximum context window                        | 112k tokens     | 200k tokens      | 200k tokens  |
+| Context window                                | 112k tokens     | 200k tokens      | 200k tokens  |
 
 
 Note: Amazon states that Q Developer Pro provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier, but do not state those limits. As of August 27, they write, "Additional usage included until previously specified 1000 requests," which suggests that will soon determine what the new limits are. They had previously stated these would be 1000; however, their equally priced [Kiro subscription](https://kiro.dev/pricing/) offers 125 "spec" requests and 225 "vibe requests" per month. For overages, they price a "spec" request four times the price of a "vibe" request. Since (125 x 4) + 225 = 725, this implies a corresponding Q usage limit of 725 monthly requests.
@@ -64,7 +64,7 @@ Note: Amazon states that Q Developer Pro provides ["increased limits of agentic 
 
 ### Install and sign in to the Q extension for VS Code:
 - In VS Code, go to Extensions > search for [Amazon Q](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.amazon-q-vscode) > Install.
-- In the Q panel: select Company account > Continue > Paste start URL > Continue > follow the prompts.
+- In the Q pane: select Company account > Continue > Paste start URL > Continue > follow the prompts.
 
 By default, Q takes over inline chat (`Ctrl+I` [Win] / `⌘I` [Mac]) from Copilot. To restore Copilot for inline chat, do either of the following:
 - Open Command Palette > Keyboard Shortcuts > search for `Amazon Q: Inline Chat` > right-click > Remove Keybinding.
@@ -89,6 +89,8 @@ Note: Both Q and Copilot can read images. However, Q requires you to save and at
   - `brew install amazon-q` (or download from [GitHub](https://github.com/aws/amazon-q-cli))
   - `q auth login`
   - `q chat`
+
+> **Note:** The CLI option is especially useful for long-running tasks on remote machines (e.g., rover), as tasks will continue even if you close your laptop lid or disconnect. In contrast, GUI-based tools may drop the connection or interrupt the session when the lid is closed or the network changes.
 
 
 ## Modes
@@ -814,7 +816,7 @@ Legend: ✅ available, ❌ unavailable in that mode.
 <td></td>
 </tr>
 <tr style="background-color: #f8f9fa;">
-<td><a href="TOOLS_GLOSSARY.md#problems">problems</a></td>
+<td><a href="TOOLS_GLOSSARY.md#problems">problems</a>
 <td>✅</td>
 <td>✅</td>
 <td>✅</td>
