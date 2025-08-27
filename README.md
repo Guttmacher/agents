@@ -81,6 +81,8 @@ For ghost text (tab completions), Copilot takes precedence over Q.
 - To use Q for ghost text: click the Copilot status bar icon > Code completions > uncheck "All files" and "Next edit suggestions".
 - To turn off Q ghost text: click the Amazon Q status bar item > Pause Auto-Suggestions
 
+Note: Both Q and Copilot can read images. However, Q requires you to save and attach image files; it does not accept images pasted from the clipboard.
+
 ### To install and sign in to the Q command-line tool:
 - [The Q CLI does not yet to support Windows.](https://github.com/aws/amazon-q-developer-cli/issues/2602)
 - macOS:
