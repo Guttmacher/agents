@@ -580,7 +580,7 @@ Context7 provides up-to-date, version-specific documentation and code examples f
 
 1. Copy the wrapper script to your bin directory:
    - macOS: `cp scripts/mcp-context7-wrapper.sh ~/bin/ && chmod +x ~/bin/mcp-context7-wrapper.sh`
-   - Windows: Copy `scripts/mcp-context7-wrapper.ps1` to `%USERPROFILE%\bin\`
+   - Windows: `scripts/mcp-context7-wrapper.ps1` to `%USERPROFILE%\bin\`
 
 2. Test the wrapper:
    - macOS: `~/bin/mcp-context7-wrapper.sh --help`
@@ -619,12 +619,23 @@ The wrapper automatically uses the globally installed package if available, fall
 
 #### Add MCP Servers to Q extension (VS Code)
 
-1. From the Q pane, click on the tools button (🛠️) ("Configure MCP Servers")
-2. Click on the add button ("＋") ("Add new MCP Server") 
-3. Paste "Name" and "Command" fields from the table below
-4. Replace `<username>` with the username you use to log into your computer
-4. Press "Save"
-- Repeat steps 2 to 4 for each MCP server:
+To add MCP servers to the Q extension in VS Code, download the appropriate template and save as:
+
+| OS      | Template                      | Save as                                          |
+|---------|-------------------------------|--------------------------------------------------|
+| Windows | [win.json](q/agents/win.json) | `%USERPROFILE%\.aws\amazonq\agents\default.json` |
+| macOS   | [mac.json](q/agents/mac.json) | `~/.aws/amazonq/agents/default.json`             |
+
+**Note:** You must edit the template to replace each instance of `<username>` with your Windows or macOS logon username.
+
+Alternatively, you can add each agent one-by-one using the menus in VS Code:
+
+1. From the Q pane, click the tools button (🛠️) ("Configure MCP Servers")
+2. Click the add button ("＋") ("Add new MCP Server")
+3. Paste the "Name" and "Command" fields from the table below
+4. Replace `<username>` with your OS username
+5. Press "Save"
+- Repeat steps 2–5 for each MCP server:
 
 | Name             | Command -- Windows                                     | Command -- macOS                                 |
 |------------------|--------------------------------------------------------|--------------------------------------------------|
@@ -685,9 +696,13 @@ Reference: [Adding personal custom instructions for GitHub Copilot](https://docs
 
 
 ### Q (Repository-Level)
+
+
 1. Create `.amazonq/rules/llm_coding_style_guidelines.txt` in the repository root
 2. Paste [templates/llm_code_style_guidelines.txt](templates/llm_code_style_guidelines.txt) content.
 3. Edit as/if needed/desired.
+
+**Note:** If you have installed our [templates](#add-mcp-servers-to-q-extension-vs-code), Q will look for `.github/copilot-instructions.md`, `AGENTS.md`, and `README.md` files. Therefore, copying the same rules to `.amazonq/rules` is redundant.
 
 ## Claude Code (Repository-Level)
 1. Create or edit `CLAUDE.md` in the repository root
@@ -2059,4 +2074,5 @@ Legend: ✅ available, ❌ unavailable in that mode.
 <td>✅</td>
 </tr>
 </tbody>
+</table>
 </table>
