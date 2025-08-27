@@ -54,17 +54,32 @@ This repository provides guidance to configure three primary AI assistants -- Gi
 | Maximum context window                        | 112k tokens     | 200k tokens      | 200k tokens  |
 
 
-Note: At one point, Amazon said Q Developer Pro stated that they provided 1000 prompts per month. Now, they that their subscriptions provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier.
+Note: Amazon states that Q Developer Pro provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier, but do not state those limits. As of August 27, they write, "Additional usage included until previously specified 1000 requests," which suggests that will soon determine what the new limits are. They had previously stated these would be 1000; however, their equally priced [Kiro subscription](https://kiro.dev/pricing/) offers 125 "spec" requests and 225 "vibe requests" per month. For overages, they price a "spec" request four times the price of a "vibe" request. Since (125 x 4) + 225 = 725, this implies a corresponding Q usage limit of 725 monthly requests.
 
-Installing Claude Desktop
+### Installing Claude Desktop
 - Download the installer from the [Claude website](https://claude.ai/download) and follow the installation instructions.
 
 ### Sign in to GitHub Copilot
 - From VS Code, follow the prompts to sign in to GitHub Copilot
 
 ### Install and sign in to the Q extension for VS Code:
-- From VS Code, go to Extensions > search for [Amazon Q](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.amazon-q-vscode) > Install
-- From the Q panel: Company account > Continue > Paste start URL > Continue > Follow the prompts
+- In VS Code, go to Extensions > search for [Amazon Q](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.amazon-q-vscode) > Install.
+- In the Q panel: select Company account > Continue > Paste start URL > Continue > follow the prompts.
+
+By default, Q takes over inline chat (`Ctrl+I` [Win] / `⌘I` [Mac]) from Copilot. To restore Copilot for inline chat, do either of the following:
+- Open Command Palette > Keyboard Shortcuts > search for `Amazon Q: Inline Chat` > right-click > Remove Keybinding.
+- Or, add this to keybindings.json:
+  ```json
+  {
+    "key": "cmd+i",
+    "command": "-aws.amazonq.inline.invokeChat",
+    "when": "aws.codewhisperer.connected && editorTextFocus"
+  }
+  ```
+
+For ghost text (tab completions), Copilot takes precedence over Q.
+- To use Q for ghost text: click the Copilot status bar icon > Code completions > uncheck "All files" and "Next edit suggestions".
+- To turn off Q ghost text: click the Amazon Q status bar item > Pause Auto-Suggestions
 
 ### To install and sign in to the Q command-line tool:
 - [The Q CLI does not yet to support Windows.](https://github.com/aws/amazon-q-developer-cli/issues/2602)
