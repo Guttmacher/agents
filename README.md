@@ -21,7 +21,9 @@ This repository provides installation guides, configuration files, scripts, and 
 │   ├── mcp-atlassian-wrapper.sh     # macOS/Linux Atlassian MCP wrapper script
 │   ├── mcp-atlassian-wrapper.ps1    # Windows Atlassian MCP wrapper script
 │   ├── mcp-bitbucket-wrapper.sh     # macOS/Linux Bitbucket MCP wrapper script
-│   └── mcp-bitbucket-wrapper.ps1    # Windows Bitbucket MCP wrapper script
+│   ├── mcp-bitbucket-wrapper.ps1    # Windows Bitbucket MCP wrapper script
+│   ├── mcp-context7-wrapper.sh      # macOS/Linux Context7 MCP wrapper script
+│   └── mcp-context7-wrapper.ps1     # Windows Context7 MCP wrapper script
 ├── templates/
 │   ├── llm_code_style_guidelines.txt      # General coding style guidelines (for copy/paste to other tools)
 │   ├── mcp_mac.json                       # MCP configuration for macOS (VS Code and Claude Desktop)
@@ -94,7 +96,7 @@ Note: Both Q and Copilot can read images. However, Q requires you to save and at
 
 
 ## Modes
-## Modes Overview
+### Modes Overview
 
 We define **four categories** of modes for different use cases, that follow a **privilege gradient:** **QnA < Review** (adds review + issue comments) **< Plan** (adds planning artifact + PR creation/edit) **< Code** (full lifecycle incl. merge & branch ops).
 
@@ -557,17 +559,14 @@ Copy-Item -Path scripts\mcp-bitbucket-wrapper.ps1 -Destination "$Env:UserProfile
 
 # optionally add the folder to your user PATH (persists for the current user)
 [Environment]::SetEnvironmentVariable('PATH', $Env:PATH + ';' + "$Env:UserProfile\bin", 'User')
-
-# run the script (example)
-& "$Env:UserProfile\bin\mcp-bitbucket-wrapper.ps1" --help | Select-Object -First 5
 ```
 
-6. Ensure PowerShell can run local scripts (set execution policy for the current user):
+5. Ensure PowerShell can run local scripts (set execution policy for the current user):
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
 ```
 
-7. Test:
+6. Test:
 ```powershell
 # Set your workspace if needed: $env:BITBUCKET_DEFAULT_WORKSPACE = 'YourWorkspace'
 $env:ATLASSIAN_BITBUCKET_USERNAME="your-username"; & $Env:UserProfile\bin\mcp-bitbucket-wrapper.ps1 --help | Select-Object -First 5
@@ -816,7 +815,7 @@ Legend: ✅ available, ❌ unavailable in that mode.
 <td></td>
 </tr>
 <tr style="background-color: #f8f9fa;">
-<td><a href="TOOLS_GLOSSARY.md#problems">problems</a>
+<td><a href="TOOLS_GLOSSARY.md#problems">problems</a></td>
 <td>✅</td>
 <td>✅</td>
 <td>✅</td>
@@ -2076,5 +2075,4 @@ Legend: ✅ available, ❌ unavailable in that mode.
 <td>✅</td>
 </tr>
 </tbody>
-</table>
 </table>
