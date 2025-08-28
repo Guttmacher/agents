@@ -701,7 +701,7 @@ We maintain concise coding style guidelines for LLMs in [`templates/llm_code_sty
 ### GitHub Copilot (Repository-Level)
 1. Create/edit/symlink `.github/copilot-instructions.md`
    > ```
-     ln -s AGENTS.md .github/copilot-instructions.md
+     ln -s ../AGENTS.md copilot-instructions.md
      ```
 2. Paste [`templates/llm_code_style_guidelines.txt`](templates/llm_code_style_guidelines.txt).
 3. Edit as/if needed/desired.
