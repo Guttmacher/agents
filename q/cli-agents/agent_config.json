@@ -41,12 +41,8 @@
   ],
   "resources": [
     "file://AmazonQ.md",
-    "file://README.md",
     "file://.amazonq/rules/**/*.md",
-    "file://CLAUDE.md",
-    "file://WARP.md",
     "file://AGENTS.md",
-    "file://.github/copilot-instructions.md"
   ],
   "prompt": null
 }
