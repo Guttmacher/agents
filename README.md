@@ -6,8 +6,8 @@ This repository provides installation guides, configuration files, scripts, and 
 
 ```
 ./
-├── README.md                         # This document
-├── TOOLS_GLOSSARY.md                 # Glossary of all available tools
+├── README.md                              # This document
+├── TOOLS_GLOSSARY.md                      # Glossary of all available tools
 ├── copilot/
 │   └── modes/
 │       ├── QnA.chatmode.md                # Strict read-only Q&A / analysis (no mutations)
@@ -16,23 +16,23 @@ This repository provides installation guides, configuration files, scripts, and 
 │       ├── Code-GPT5.chatmode.md          # Full coding, execution, PR + branch ops (GPT-5 model)
 │       ├── Review.chatmode.md             # PR & issue review feedback (comments only)
 ├── scripts/
-│   ├── mcp-github-wrapper.sh        # macOS/Linux GitHub MCP wrapper script
-│   ├── mcp-github-wrapper.ps1       # Windows GitHub MCP wrapper script
-│   ├── mcp-atlassian-wrapper.sh     # macOS/Linux Atlassian MCP wrapper script
-│   ├── mcp-atlassian-wrapper.ps1    # Windows Atlassian MCP wrapper script
-│   ├── mcp-bitbucket-wrapper.sh     # macOS/Linux Bitbucket MCP wrapper script
-│   ├── mcp-bitbucket-wrapper.ps1    # Windows Bitbucket MCP wrapper script
-│   ├── mcp-context7-wrapper.sh      # macOS/Linux Context7 MCP wrapper script
-│   └── mcp-context7-wrapper.ps1     # Windows Context7 MCP wrapper script
+│   ├── mcp-github-wrapper.sh              # macOS/Linux GitHub MCP wrapper script
+│   ├── mcp-github-wrapper.ps1             # Windows GitHub MCP wrapper script
+│   ├── mcp-atlassian-wrapper.sh           # macOS/Linux Atlassian MCP wrapper script
+│   ├── mcp-atlassian-wrapper.ps1          # Windows Atlassian MCP wrapper script
+│   ├── mcp-bitbucket-wrapper.sh           # macOS/Linux Bitbucket MCP wrapper script
+│   ├── mcp-bitbucket-wrapper.ps1          # Windows Bitbucket MCP wrapper script
+│   ├── mcp-context7-wrapper.sh            # macOS/Linux Context7 MCP wrapper script
+│   └── mcp-context7-wrapper.ps1           # Windows Context7 MCP wrapper script
 ├── templates/
 │   ├── llm_code_style_guidelines.txt      # General coding style guidelines (for copy/paste to other tools)
 │   ├── mcp_mac.json                       # MCP configuration for macOS (VS Code and Claude Desktop)
 │   ├── mcp_win.json                       # MCP configuration for Windows (VS Code and Claude Desktop)
 │   └── vscode-settings.jsonc              # VS Code user settings template (optional)
 └── tests/
-    ├── smoke_mcp_wrappers.py        # Smoke test runner for wrapper stdout (filters/validates stdout)
-    ├── smoke_auth.sh                # Tests for authentication setup
-    └── smoke_rules.R                # R script for validating tool lists/matrix consistency
+    ├── smoke_mcp_wrappers.py              # Smoke test runner for wrapper stdout (filters/validates stdout)
+    ├── smoke_auth.sh                      # Tests for authentication setup
+    └── smoke_rules.R                      # R script for validating tool lists/matrix consistency
 ```
 
 ## AI Assistants
