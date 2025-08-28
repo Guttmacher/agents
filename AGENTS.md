@@ -4,7 +4,7 @@ These instructions help AI agents (Claude, GitHub Copilot, Q, etc.) work effecti
 
 ## Repository Overview
 
-This is a documentation repository for GitHub Copilot modes and tools. All "building" and "testing" operations consist of validating documentation structure and Markdown formatting.
+This is a documentation repository for AI coding assistant setup and configuration. All "building" and "testing" operations consist of validating documentation structure and Markdown formatting.
 
 ## Validation
 
