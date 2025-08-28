@@ -88,7 +88,7 @@ This repository provides guidance to configure three primary AI assistants -- Gi
   - Open the URL
     - Follow the prompts
 
-> [The Q CLI does not yet to support Windows.](https://github.com/aws/amazon-q-developer-cli/issues/2602)
+> [The Q CLI does not yet support Windows.](https://github.com/aws/amazon-q-developer-cli/issues/2602)
 
 **To run Q:**
 - `q chat`
