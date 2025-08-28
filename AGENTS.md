@@ -4,12 +4,7 @@ These instructions help AI agents (Claude, GitHub Copilot, Q, etc.) work effecti
 
 ## Repository Overview
 
-This is a documentation repository for GitHub Copilot modes and tools. All "building" and "testing" consists of validating documentation structure and markdown formatting.
-
-**Bootstrap and validate the repository:**
-- `cd <repo-root>` (if needed)
-- **Lint markdown files:** Run `markdownlint "*.md" "**/*.md"` — takes < 1 second. NEVER CANCEL.
-- **Verify git status:** `git --no-pager status && git --no-pager log --oneline -5` — takes < 0.1 seconds. NEVER CANCEL.
+This is a documentation repository for GitHub Copilot modes and tools. All "building" and "testing" operations consist of validating documentation structure and Markdown formatting.
 
 ## Validation
 
@@ -19,13 +14,10 @@ This is a documentation repository for GitHub Copilot modes and tools. All "buil
 
 2. **Mode File Structure Test:** Validate that all mode files follow correct format (YAML frontmatter with tools list and contract section). Check manually by viewing each file.
 
-3. **Cross-Reference Validation:** Check that the tool matrix in README.md matches the tools lists in the individual mode files.
+3. **Cross-Reference & Tool Lists Validation:** Ensure the tool matrix in README.md matches the tool lists in the individual mode files; verify with: `Rscript tests/smoke_rules.R`.
 
 4. **Markdown Quality Check:** Run full markdown linting to ensure documentation quality. The linting will show many existing issues — this is expected and not blocking.
 
-5. **Tools Lists Validation:** Ensure the tools list in README.md accurately reflects the tools lists in the chatmode.md files. Verify with: `Rscript tests/smoke_rules.R`.
-
-**NEVER CANCEL any validation command.** All validation operations complete in under 1 second.
 
 ## Repository Structure
 ```
@@ -89,6 +81,7 @@ Standard YAML frontmatter:
 This repository has no traditional build process. The validation workflow is:
 1. Markdown linting: `markdownlint *.md **/*.md`  
 2. Git status check: `git --no-pager status`
+3. Recent commits: `git --no-pager log --oneline -5`
 
 **Timing Expectations:**
 - All validation operations: < 1 second
@@ -146,8 +139,8 @@ Quick smoke test for wrappers
   - Provide specific paths to test particular wrappers
 
 Examples
-- Test installed copies in ~/bin: tests/smoke_mcp_wrappers.py --include-bin
-- Test only the GitHub wrapper: tests/smoke_mcp_wrappers.py scripts/mcp-github-wrapper.sh
+- Test installed copies in ~/bin: python3 tests/smoke_mcp_wrappers.py --include-bin
+- Test only the GitHub wrapper: python3 tests/smoke_mcp_wrappers.py scripts/mcp-github-wrapper.sh
 
 Credentials
 - GitHub
