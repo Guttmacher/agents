@@ -699,7 +699,10 @@ Note: Use the default for Scope ("Global") and Transport ("stdio"). (Should the 
 We maintain concise coding style guidelines for LLMs in [`templates/llm_code_style_guidelines.txt`](templates/llm_code_style_guidelines.txt). We can copy/paste this file into other tools that support custom instructions, such as GitHub Copilot, Warp, Q, and Claude Code.
 
 ### GitHub Copilot (Repository-Level)
-1. Create or edit `.github/copilot-instructions.md`
+1. Create/edit/symlink `.github/copilot-instructions.md`
+   > ```
+     ln -s AGENTS.md .github/copilot-instructions.md
+     ```
 2. Paste [`templates/llm_code_style_guidelines.txt`](templates/llm_code_style_guidelines.txt).
 3. Edit as/if needed/desired.
 
@@ -729,7 +732,7 @@ Since the organization-level instructions equal [`templates/llm_code_style_guide
 Reference: [Adding personal custom instructions for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-personal-instructions)
 
 ### Warp (Repository-Level)
-1. Create `WARP.md`
+1. Create `AGENTS.md`
 2. Paste [templates/llm_code_style_guidelines.txt](templates/llm_code_style_guidelines.txt) content.
 3. Edit as/if needed/desired.
 
@@ -741,15 +744,19 @@ Reference: [Adding personal custom instructions for GitHub Copilot](https://docs
 
 ### Q (Repository-Level)
 
+**Note:** If you have installed our [templates](#add-mcp-servers-to-q-extension-vs-code), Q will look for `AGENTS.md` in the repository root.
 
+You can also create Q-specific rules by placing them in .amazonq/rules or by creating an AmazonQ.md file; for example:
 1. Create `.amazonq/rules/llm_coding_style_guidelines.txt` in the repository root
 2. Paste [templates/llm_code_style_guidelines.txt](templates/llm_code_style_guidelines.txt) content.
 3. Edit as/if needed/desired.
 
-**Note:** If you have installed our [templates](#add-mcp-servers-to-q-extension-vs-code), Q will look for `.github/copilot-instructions.md`, `AGENTS.md`, and `README.md` files. Therefore, copying the same rules to `.amazonq/rules` is redundant.
 
 ## Claude Code (Repository-Level)
-1. Create or edit `CLAUDE.md` in the repository root
+1. Create/edit/symlink `CLAUDE.md` in the repository root
+   > ```
+      ln -s AGENTS.md CLAUDE.md
+     ```
 2. Paste [templates/llm_code_style_guidelines.txt](templates/llm_code_style_guidelines.txt) content.
 3. Edit as/if needed/desired.
 

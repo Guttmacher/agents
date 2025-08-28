@@ -65,10 +65,7 @@
   },
   "includedFiles": [
     "AmazonQ.md",
-    "README.md",
     "AGENTS.md",
-    "CLAUDE.md",
-    ".github/copilot-instructions.md",
     ".amazonq/rules/**/*.md"
   ],
   "resources": [],
