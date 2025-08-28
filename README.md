@@ -6,8 +6,8 @@ This repository provides installation guides, configuration files, scripts, and 
 
 ```
 ./
-├── README.md                         # This document
-├── TOOLS_GLOSSARY.md                 # Glossary of all available tools
+├── README.md                              # This document
+├── TOOLS_GLOSSARY.md                      # Glossary of all available tools
 ├── copilot/
 │   └── modes/
 │       ├── QnA.chatmode.md                # Strict read-only Q&A / analysis (no mutations)
@@ -16,21 +16,23 @@ This repository provides installation guides, configuration files, scripts, and 
 │       ├── Code-GPT5.chatmode.md          # Full coding, execution, PR + branch ops (GPT-5 model)
 │       ├── Review.chatmode.md             # PR & issue review feedback (comments only)
 ├── scripts/
-│   ├── mcp-github-wrapper.sh        # macOS/Linux GitHub MCP wrapper script
-│   ├── mcp-github-wrapper.ps1       # Windows GitHub MCP wrapper script
-│   ├── mcp-atlassian-wrapper.sh     # macOS/Linux Atlassian MCP wrapper script
-│   ├── mcp-atlassian-wrapper.ps1    # Windows Atlassian MCP wrapper script
-│   ├── mcp-bitbucket-wrapper.sh     # macOS/Linux Bitbucket MCP wrapper script
-│   └── mcp-bitbucket-wrapper.ps1    # Windows Bitbucket MCP wrapper script
+│   ├── mcp-github-wrapper.sh              # macOS/Linux GitHub MCP wrapper script
+│   ├── mcp-github-wrapper.ps1             # Windows GitHub MCP wrapper script
+│   ├── mcp-atlassian-wrapper.sh           # macOS/Linux Atlassian MCP wrapper script
+│   ├── mcp-atlassian-wrapper.ps1          # Windows Atlassian MCP wrapper script
+│   ├── mcp-bitbucket-wrapper.sh           # macOS/Linux Bitbucket MCP wrapper script
+│   ├── mcp-bitbucket-wrapper.ps1          # Windows Bitbucket MCP wrapper script
+│   ├── mcp-context7-wrapper.sh            # macOS/Linux Context7 MCP wrapper script
+│   └── mcp-context7-wrapper.ps1           # Windows Context7 MCP wrapper script
 ├── templates/
 │   ├── llm_code_style_guidelines.txt      # General coding style guidelines (for copy/paste to other tools)
 │   ├── mcp_mac.json                       # MCP configuration for macOS (VS Code and Claude Desktop)
 │   ├── mcp_win.json                       # MCP configuration for Windows (VS Code and Claude Desktop)
 │   └── vscode-settings.jsonc              # VS Code user settings template (optional)
 └── tests/
-    ├── smoke_mcp_wrappers.py        # Smoke test runner for wrapper stdout (filters/validates stdout)
-    ├── smoke_auth.sh                # Tests for authentication setup
-    └── smoke_rules.R                # R script for validating tool lists/matrix consistency
+    ├── smoke_mcp_wrappers.py              # Smoke test runner for wrapper stdout (filters/validates stdout)
+    ├── smoke_auth.sh                      # Tests for authentication setup
+    └── smoke_rules.R                      # R script for validating tool lists/matrix consistency
 ```
 
 ## AI Assistants
@@ -54,15 +56,44 @@ This repository provides guidance to configure three primary AI assistants -- Gi
 | Context window                                | 112k tokens     | 200k tokens      | 200k tokens  |
 
 
-Note: Amazon states that Q Developer Pro provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier, but do not state those limits. As of August 27, they write, "Additional usage included until Sep 1, 2025," which suggests that will soon determine what the new limits are. They had previously stated these would be 1000; however, their equally priced [Kiro subscription](https://kiro.dev/pricing/) offers 125 "spec" requests and 225 "vibe requests" per month. For overages, they price a "spec" request four times the price of a "vibe" request. Since (125 x 4) + 225 = 725, this implies a corresponding Q usage limit of 725 monthly requests.
+> Note: Amazon states that Q Developer Pro provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier, but do not state those limits. As of August 27, they write, "Additional usage included until Sep 1, 2025," which suggests that will soon determine what the new limits are. They had previously stated these would be 1000; however, their equally priced [Kiro subscription](https://kiro.dev/pricing/) offers 125 "spec" requests and 225 "vibe requests" per month. For overages, they price a "spec" request four times the price of a "vibe" request. Since (125 x 4) + 225 = 725, this implies a corresponding Q usage limit of 725 monthly requests.
 
-### Installing Claude Desktop
+### Claude Desktop
 - Download the installer from the [Claude website](https://claude.ai/download) and follow the installation instructions.
 
-### Sign in to GitHub Copilot
+### GitHub Copilot (VS Code)
 - From VS Code, follow the prompts to sign in to GitHub Copilot
 
-### Install and sign in to the Q extension for VS Code:
+### Amazon Q CLI
+
+> The CLI tool makes it possible to run tasks in a development container that continue even when you close your laptop lid or disconnect. 
+
+**To sign in to the CLI tool on a remote machine:**
+- `security unlock-keychain`
+  - (enter your macOS login password)
+- `q login`
+  - Use the arrow keys to select "Use with Pro license"
+  - Paste start URL
+  - Paste region
+  - Open the URL
+    - Follow the prompts
+
+**To install and sign in to Q on macOS:**
+- macOS:
+  - `brew install amazon-q` (or download from [GitHub](https://github.com/aws/amazon-q-cli))
+  - `q login`
+  - Use the arrow keys to select "Use with Pro license"
+  - Paste start URL
+  - Paste region
+  - Open the URL
+    - Follow the prompts
+
+> [The Q CLI does not yet support Windows.](https://github.com/aws/amazon-q-developer-cli/issues/2602)
+
+**To run Q:**
+- `q chat`
+
+### Amazon Q (VS Code)
 - In VS Code, go to Extensions > search for [Amazon Q](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.amazon-q-vscode) > Install.
 - In the Q pane: select Company account > Continue > Paste start URL > Continue > follow the prompts.
 
@@ -83,18 +114,9 @@ For ghost text (tab completions), Copilot takes precedence over Q.
 
 Note: Both Q and Copilot can read images. However, Q requires you to save and attach image files; it does not accept images pasted from the clipboard.
 
-### To install and sign in to the Q command-line tool:
-- [The Q CLI does not yet to support Windows.](https://github.com/aws/amazon-q-developer-cli/issues/2602)
-- macOS:
-  - `brew install amazon-q` (or download from [GitHub](https://github.com/aws/amazon-q-cli))
-  - `q auth login`
-  - `q chat`
-
-> **Note:** The CLI option is especially useful for long-running tasks on remote machines (e.g., rover), as tasks will continue even if you close your laptop lid or disconnect. In contrast, GUI-based tools may drop the connection or interrupt the session when the lid is closed or the network changes.
-
 
 ## Modes
-## Modes Overview
+### Modes Overview
 
 We define **four categories** of modes for different use cases, that follow a **privilege gradient:** **QnA < Review** (adds review + issue comments) **< Plan** (adds planning artifact + PR creation/edit) **< Code** (full lifecycle incl. merge & branch ops).
 
@@ -163,10 +185,10 @@ From these four categories, we create **five modes**. **Code-GPT5** and **Code-S
 
 **Save the files from [copilot/modes/](copilot/modes) to:**
 
-| OS        | Folder                                                 |
-|-----------|--------------------------------------------------------|
-| Windows   | C:\Users\<your-os-username>\AppData\Roaming\Code\User\prompts\ |
-| Macintosh | ~/Library/Application Support/Code/User/prompts/       |
+| OS        | Folder                                             |
+|-----------|----------------------------------------------------|
+| Windows   | `%USERPROFILE%\AppData\Roaming\Code\User\prompts\` |
+| Macintosh | `~/Library/Application Support/Code/User/prompts/` |
 
 
 **Alternatively,** you can create create these files using the VS Code menus:
@@ -205,7 +227,7 @@ From these four categories, we create **five modes**. **Code-GPT5** and **Code-S
 | Warp              | —            | Has o3 and o4 mini, and can specify GPT-5 reasoning level  |
 
 
-**Note:** [GPT-5 adds _reasoning_effort_ and _verbosity_ parameters ranging from minimal/low to high](https://openai.com/index/introducing-gpt-5-for-developers/), but providers do not transparently communicate how they configure it. One can access high/high settings for planning tasks via the OpenAI API.
+**Note:** [GPT-5 adds _reasoning_effort_ and _verbosity_ parameters ranging from minimal/low to high](https://openai.com/index/introducing-gpt-5-for-developers/), but providers do not transparently communicate how they configure it.
 
 ### Context Windows
 
@@ -223,12 +245,13 @@ From these four categories, we create **five modes**. **Code-GPT5** and **Code-S
 - A token is roughly 4 characters long.
 - For example, _unbreakable_ consists of _un_ - _break_ - _able_.
 
-**Note:** Agents will generally compress and prune prompts to fit within their context windows in multi-turn chats. However, Claude.ai/Desktop will not; if after several turns you exceed the context window, you cannot continue the chat.
+> Note: In long conversations, AI coding agents compress earlier messages to stay within their context window. Claude.ai and Claude Desktop don't compress—instead, they end the chat when the context window fills. Be careful with compression, as agents may lose important information (see warning below).
 
+> ⚠️ **When context compression occurs, consider starting a new chat.** Compressed inputs can lose critical information and cause errors—especially during iterative tasks.
 
 ## MCP Servers
 
-Model Context Provider (MCP) Servers provide a bridge between agents and APIs: Agent <-> MCP Server <-> API. MCP Servers provide agents tool lists and (ideally) include usage examples for each tool.
+Model Context Provider (MCP) Servers provide a bridge between agents and APIs: Agent ↔ MCP Server ↔ API. MCP Servers provide agents tool lists and (ideally) include usage examples for each tool.
 
 Local MCP servers run on your computer whereas remote MCP servers run in the cloud. 
  - Microsoft provides both kinds for GitHub. However, they describe their remote server as "[in preview](https://github.blog/changelog/2025-06-12-remote-github-mcp-server-is-now-available-in-public-preview/)".
@@ -311,8 +334,12 @@ Follow these steps to obtain a necessary GitHub access token:
    Import-Module CredentialManager
    Get-StoredCredential -Target github-mcp
    ```
-3. Use the provided wrapper script: copy [`scripts/mcp-github-wrapper.ps1`](scripts/mcp-github-wrapper.ps1) to `C:\Users\<your-os-username>\bin\mcp-github-wrapper.ps1`
-4. Ensure script dir: `New-Item -ItemType Directory -Force "$Env:UserProfile\bin" | Out-Null`
+3. Use the provided wrapper script: 
+copy [mcp-github-wrapper.ps1](scripts/mcp-github-wrapper.ps1) to %USERPROFILE%\bin\
+4. Ensure script dir:
+   ```powershell
+   New-Item -ItemType Directory -Force "$Env:UserProfile\bin" | Out-Null
+   ```
 5. Set execution policy (user scope):
    ```powershell
    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
@@ -321,7 +348,6 @@ Follow these steps to obtain a necessary GitHub access token:
    ```powershell
    & $Env:UserProfile\bin\mcp-github-wrapper.ps1 --help | Select-Object -First 10
    ```
-   If it errors about credentials, re-create the Generic Credential `GitHub`
 
 #### Configure GitHub MCP Server on macOS
 
@@ -334,15 +360,29 @@ Follow these steps to obtain a necessary GitHub access token:
      ```bash
      security add-generic-password -s github-mcp -a token -w
      ```
-2. Use the provided wrapper script: copy [`scripts/mcp-github-wrapper.sh`](scripts/mcp-github-wrapper.sh) to `~/bin/mcp-github-wrapper.sh`
-3. Make it executable: `chmod +x ~/bin/mcp-github-wrapper.sh`
-4. Test retrieval (optional): `security find-generic-password -s github-mcp -a token -w`
-5. Verify wrapper: `~/bin/mcp-github-wrapper.sh --help | head -5`
+2. Use the provided wrapper script: copy [mcp-github-wrapper.sh](scripts/mcp-github-wrapper.sh) to ~/bin/
+3. Make it executable:
+   ```bash
+   chmod +x ~/bin/mcp-github-wrapper.sh
+   ```
+4. Test retrieval (optional):
+   ```bash
+   security find-generic-password -s github-mcp -a token -w
+   ```
+5. Verify wrapper:
+   ```bash
+   ~/bin/mcp-github-wrapper.sh --help | head -5
+   ```
 
-**Note:** If `~/bin` is not already on your PATH, add the following line to your `~/.zshrc` (macOS default shell) and then `source ~/.zshrc`:
+**Note:** If ~/bin is not already on your PATH, add the following line to your ~/.zshrc (macOS default shell):
 
 ```
 export PATH="$HOME/bin:$PATH"
+```
+
+After you save your changes to ~/.zshrc, open a new terminal or run:
+```zsh
+source ~/.zshrc
 ```
 
 
@@ -378,17 +418,22 @@ export PATH="$HOME/bin:$PATH"
    ```bash
    chmod +x ~/bin/mcp-atlassian-wrapper.sh
    ```
-  **Note:** If `~/bin` is not already on your PATH, add the following line to your `~/.zshrc` and then `source ~/.zshrc`:
-  ```
-  export PATH="$HOME/bin:$PATH"
-  ```
 
 4. Test
    ```bash
    ~/bin/mcp-atlassian-wrapper.sh --help | head -5
    ```
 
-**Note:** If Docker/Podman is unavailable, the wrapper may fall back to the Atlassian remote MCP server and authenticate via OAuth. This will open your default browser to complete sign-in.
+> If `~/bin` is not already on your PATH, add the following line to your `~/.zshrc`:
+>  ```
+>  export PATH="$HOME/bin:$PATH"
+>  ```
+> After you save ~/.zshrc, open a new terminal or run:
+> ```zsh
+> source ~/.zshrc
+> ```
+
+> **Note:** If colima is not running, the wrapper will fall back to the Atlassian remote MCP server and authenticate via OAuth. This will open your default browser to complete sign-in.
 
 #### Configure Atlassian MCP Server on Windows
 
@@ -397,7 +442,7 @@ export PATH="$HOME/bin:$PATH"
    Install-Module CredentialManager -Scope CurrentUser -Force
    ```
 
-  **Note:** If this fails with a permissions or execution policy error and you are not in an elevated session, start PowerShell by right‑clicking and choosing "Run as administrator", then retry (you can still use `-Scope CurrentUser`).
+   > If this fails with a permissions or execution policy error and you are not in an elevated session, start PowerShell by right‑clicking and choosing "Run as administrator", then retry (you can still use `-Scope CurrentUser`).
 
 2. Create a _generic credential_ in Windows Credential Manager for the API token:
    - GUI: Control Panel → User Accounts → Credential Manager → Windows Credentials → Add a generic credential.
@@ -405,21 +450,21 @@ export PATH="$HOME/bin:$PATH"
      - User name: `token`
      - Password: (your Atlassian API token)
    - Or CLI:
-   > ⚠️ **Security Warning:** Running `cmd /c "cmdkey /add:atlassian-mcp /user:token /pass:<your-api-token>"` directly will write your secret in cleartext to your shell history. Use this secure command instead:
-   ```powershell
-   $secure = Read-Host -AsSecureString "Enter Atlassian API token"
-   $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-   try {
-     $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
-     # Use Start-Process so the literal token isn't echoed back; it's still passed in memory only.
-     Start-Process -FilePath cmd.exe -ArgumentList "/c","cmdkey","/add:atlassian-mcp","/user:token","/pass:$plain" -WindowStyle Hidden -NoNewWindow -Wait
-     Write-Host "Credential 'atlassian-mcp' created." -ForegroundColor Green
-   } finally {
-     if ($bstr -ne [IntPtr]::Zero) { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
-   }
-   ```
+      > ⚠️ **Security Warning:** Running `cmd /c "cmdkey /add:atlassian-mcp /user:token /pass:<your-api-token>"` directly will write your secret in cleartext to your shell history. Use this secure command instead:
+       ```powershell
+       $secure = Read-Host -AsSecureString "Enter Atlassian API token"
+       $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+       try {
+         $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+         # Use Start-Process so the literal token isn't echoed back; it's still passed in memory only.
+         Start-Process -FilePath cmd.exe -ArgumentList "/c","cmdkey","/add:atlassian-mcp","/user:token","/pass:$plain" -WindowStyle Hidden -NoNewWindow -Wait
+         Write-Host "Credential 'atlassian-mcp' created." -ForegroundColor Green
+       } finally {
+         if ($bstr -ne [IntPtr]::Zero) { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
+       }
+       ```
 
-3. Copy `scripts/mcp-atlassian-wrapper.ps1` to `%USERPROFILE%\bin\`:
+3. Copy [mcp-atlassian-wrapper.ps1](scripts/mcp-atlassian-wrapper.ps1) to `%USERPROFILE%\bin\`:
    ```powershell
    # Create a user bin folder and copy the script there
    New-Item -ItemType Directory -Force "$Env:UserProfile\bin"
@@ -440,7 +485,7 @@ export PATH="$HOME/bin:$PATH"
    & $Env:UserProfile\bin\mcp-atlassian-wrapper.ps1 --help | Select-Object -First 5
    ```
 
-**Note:** If Docker/Podman is unavailable, the wrapper may fall back to the Atlassian remote MCP server and authenticate via OAuth. This will open your default browser to complete sign-in.
+**Note:** If it cannot call docker, the wrapper may fall back to the Atlassian remote MCP server and authenticate via OAuth. This will open your default browser to complete sign-in.
 
 
 
@@ -488,17 +533,17 @@ export PATH="$HOME/bin:$PATH"
      - Account: `bitbucket-username`
      - Password: (your Bitbucket username)
    - Or CLI:
-  ```bash
-  security add-generic-password -s bitbucket-mcp -a username -w "<your-bitbucket-username>"
-  ```
+     ```bash
+     security add-generic-password -s bitbucket-mcp -a username -w "<your-bitbucket-username>"
+     ```
 
 You can skip step 2 if your Bitbucket username is the same as the first part of your email address--the one set in your global git config.
 - *If* my Bitbucket username was _jbearak_, I could skip step 2, _but_ my Bitbucket username is _jonathan-b_, so I need to set it in the keychain.
 - As an alternative to storing your Bitbucket username in your system keychain, could specify your Bitbucket username in an environment variable (in the json file, place `"ATLASSIAN_BITBUCKET_USERNAME": "`<your-bitbucket-username>`" in the `env` section). I like using the keychain for convenience, so I do not have to set it--this lets me use the configuration file templates without editing them.
 
-3. Copy `scripts/mcp-bitbucket-wrapper.sh` to `~/bin/`:
+3. Copy [mcp-bitbucket-wrapper.sh](scripts/mcp-bitbucket-wrapper.sh) to `~/bin/`:
    ```bash
-  cp scripts/mcp-bitbucket-wrapper.sh ~/bin/
+     cp scripts/mcp-bitbucket-wrapper.sh ~/bin/
    ```
 
 4. Make it executable:
@@ -514,10 +559,10 @@ You can skip step 2 if your Bitbucket username is the same as the first part of 
 #### Configure Bitbucket MCP Server on Windows
 
 1. If you have not already done so, install the CredentialManager module:
-```powershell
-Install-Module CredentialManager -Scope CurrentUser -Force
-```
-  **Note:** If this fails with a permissions or execution policy error and you are not in an elevated session, start PowerShell by right‑clicking and choosing "Run as administrator", then retry (you can still use `-Scope CurrentUser`).
+   ```powershell
+   Install-Module CredentialManager -Scope CurrentUser -Force
+   ```
+   If this fails with a permissions or execution policy error and you are not in an elevated session, start PowerShell by right‑clicking and choosing "Run as administrator", then retry (you can still use `-Scope CurrentUser`).
 
 2. Create a _generic credential_ in Windows Credential Manager for the app password:
    - GUI: Control Panel → User Accounts → Credential Manager → Windows Credentials → Add a generic credential.
@@ -526,18 +571,18 @@ Install-Module CredentialManager -Scope CurrentUser -Force
      - Password: (your Bitbucket app password)
    - Or CLI:
      > ⚠️ **Security Warning:** Running `cmd /c "cmdkey /add:bitbucket-mcp /user:app-password /pass:<app_password>` directly will write your secret in cleartext to your shell history. Use this secure command instead:
-   ```powershell
-    $secure = Read-Host -AsSecureString "Enter Bitbucket app password"
-    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-    try {
-      $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
-      # Use Start-Process so the literal password isn't echoed back; it's still passed in memory only.
-      Start-Process -FilePath cmd.exe -ArgumentList "/c","cmdkey","/add:bitbucket-mcp","/user:app-password","/pass:$plain" -WindowStyle Hidden -NoNewWindow -Wait
-      Write-Host "Credential 'bitbucket-mcp' created." -ForegroundColor Green
-    } finally {
-      if ($bstr -ne [IntPtr]::Zero) { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
-    }
-    ```
+      ```powershell
+       $secure = Read-Host -AsSecureString "Enter Bitbucket app password"
+       $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+       try {
+         $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+         # Use Start-Process so the literal password isn't echoed back; it's still passed in memory only.
+         Start-Process -FilePath cmd.exe -ArgumentList "/c","cmdkey","/add:bitbucket-mcp","/user:app-password","/pass:$plain" -WindowStyle Hidden -NoNewWindow -Wait
+         Write-Host "Credential 'bitbucket-mcp' created." -ForegroundColor Green
+       } finally {
+         if ($bstr -ne [IntPtr]::Zero) { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
+       }
+       ```
 
 3. Create a _general credential_ in Windows Credential Manager for your Bitbucket username:
    - GUI: Control Panel → User Accounts → Credential Manager → Windows Credentials → Add a generic credential.
@@ -545,33 +590,30 @@ Install-Module CredentialManager -Scope CurrentUser -Force
      - User name: `username`
      - Password: (your Bitbucket username)
    - Or CLI:
+      ```powershell
+      cmdkey /add:bitbucket-mcp /user:username /pass:<your-bitbucket-username>
+      ```
+
+4. Copy [mcp-bitbucket-wrapper.ps1](scripts/mcp-bitbucket-wrapper.ps1) to `%USERPROFILE%\bin\`:
    ```powershell
-   cmdkey /add:bitbucket-mcp /user:username /pass:<your-bitbucket-username>
+   # create a user bin folder and copy the script there
+   New-Item -ItemType Directory -Force "$Env:UserProfile\bin"
+   Copy-Item -Path scripts\mcp-bitbucket-wrapper.ps1 -Destination "$Env:UserProfile\bin\mcp-bitbucket-wrapper.ps1" -Force
+   
+   # optionally add the folder to your user PATH (persists for the current user)
+   [Environment]::SetEnvironmentVariable('PATH', $Env:PATH + ';' + "$Env:UserProfile\bin", 'User')
    ```
 
-4. Copy `scripts/mcp-bitbucket-wrapper.ps1` to `%USERPROFILE%\bin\`:
-```powershell
-# create a user bin folder and copy the script there
-New-Item -ItemType Directory -Force "$Env:UserProfile\bin"
-Copy-Item -Path scripts\mcp-bitbucket-wrapper.ps1 -Destination "$Env:UserProfile\bin\mcp-bitbucket-wrapper.ps1" -Force
+5. Ensure PowerShell can run local scripts (set execution policy for the current user):
+   ```powershell
+   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+   ```
 
-# optionally add the folder to your user PATH (persists for the current user)
-[Environment]::SetEnvironmentVariable('PATH', $Env:PATH + ';' + "$Env:UserProfile\bin", 'User')
-
-# run the script (example)
-& "$Env:UserProfile\bin\mcp-bitbucket-wrapper.ps1" --help | Select-Object -First 5
-```
-
-6. Ensure PowerShell can run local scripts (set execution policy for the current user):
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
-```
-
-7. Test:
-```powershell
-# Set your workspace if needed: $env:BITBUCKET_DEFAULT_WORKSPACE = 'YourWorkspace'
-$env:ATLASSIAN_BITBUCKET_USERNAME="your-username"; & $Env:UserProfile\bin\mcp-bitbucket-wrapper.ps1 --help | Select-Object -First 5
-```
+6. Test:
+   ```powershell
+   # Set your workspace if needed: $env:BITBUCKET_DEFAULT_WORKSPACE = 'YourWorkspace'
+   $env:ATLASSIAN_BITBUCKET_USERNAME="your-username"; & $Env:UserProfile\bin\mcp-bitbucket-wrapper.ps1 --help | Select-Object -First 5
+   ```
 
 
 ### Context7 MCP Server
@@ -816,7 +858,7 @@ Legend: ✅ available, ❌ unavailable in that mode.
 <td></td>
 </tr>
 <tr style="background-color: #f8f9fa;">
-<td><a href="TOOLS_GLOSSARY.md#problems">problems</a>
+<td><a href="TOOLS_GLOSSARY.md#problems">problems</a></td>
 <td>✅</td>
 <td>✅</td>
 <td>✅</td>
@@ -2076,5 +2118,4 @@ Legend: ✅ available, ❌ unavailable in that mode.
 <td>✅</td>
 </tr>
 </tbody>
-</table>
 </table>
