@@ -42,7 +42,7 @@ This repository provides guidance to configure three primary AI assistants -- Gi
 ### Comparison of capabilities
 |                                               | GitHub Copilot  | Claude Desktop | Q             |
 |-----------------------------------------------|------------------|----------------|---------------|
-| Graphic user interface                        | ✅              | ✅              | ✅            |
+| Graphical user interface                      | ✅              | ✅              | ✅            |
 | Command line interface                        | ❌              | ❌              | ✅            |
 | Messages with broader or non-coding scope     | ❌              | ✅              | ❌            |
 | Web Search                                    | ❌              | ✅              | ❌            |
