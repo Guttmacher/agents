@@ -226,7 +226,8 @@ convert_matrix_to_toolsets <- function(tool_matrix) {
     }
 
     mode_column <- tool_matrix[[mode]]
-    has_tool <- str_detect(mode_column, "✅|✓|���") & !is.na(mode_column)
+    # Only ✅ means available - all other symbols (❌, ❎, ☑️) mean not available
+    has_tool <- str_detect(mode_column, "✅") & !is.na(mode_column)
     mode_tools <- tool_matrix[has_tool, "Tool"]
     mode_tools <- mode_tools[!is.na(mode_tools)]
     mode_tools <- str_trim(mode_tools)
