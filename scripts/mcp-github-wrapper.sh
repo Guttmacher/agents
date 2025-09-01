@@ -10,25 +10,75 @@ set -euo pipefail
 SERVICE_NAME="github-mcp"
 ACCOUNT_NAME="token"
 DOCKER_COMMAND="${DOCKER_COMMAND:-docker}"
-export DOCKER_HOST="${DOCKER_HOST:-unix://$HOME/.colima/default/docker.sock}"
+# Set a Colima-based DOCKER_HOST by default when Colima is present
+if [[ -z "${DOCKER_HOST:-}" ]]; then
+  if command -v colima >/dev/null 2>&1; then
+    export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
+  fi
+fi
 DOCKER_IMAGE="${MCP_GITHUB_DOCKER_IMAGE:-ghcr.io/github/github-mcp-server:latest}"
 REMOTE_MCP_URL="https://api.githubcopilot.com/mcp/"
 
 # --- Helper Functions ---
 check_docker_daemon() {
-  if ! "$DOCKER_COMMAND" info &> /dev/null; then
-    # Check if Colima is running
+  # Fast path
+  if "$DOCKER_COMMAND" info >/dev/null 2>&1; then
+    return 0
+  fi
+
+  # Respect explicit opt-out
+  if [[ "${NO_AUTO_START_COLIMA:-}" == "1" ]]; then
+    echo "Docker daemon not running and NO_AUTO_START_COLIMA=1 set; not attempting to start Colima." >&2
+    return 1
+  fi
+
+  # macOS + docker + colima present
+  if [[ "${DOCKER_COMMAND}" == "docker" ]] && command -v colima >/dev/null 2>&1; then
     if ! colima status >/dev/null 2>&1; then
       echo "Starting Colima..." >&2
-      colima start --quiet
+      if ! colima start --quiet >/dev/null 2>&1; then
+        echo "Warning: Failed to start Colima automatically." >&2
+      fi
     fi
-    # Check again after potential Colima start
-    if ! "$DOCKER_COMMAND" info &> /dev/null; then
-      echo "Error: Docker daemon ('$DOCKER_COMMAND') is not running." >&2
-      echo "Please start your container runtime (e.g., 'colima start')." >&2
-      return 1
-    fi
+
+    # Wait briefly for the daemon to become ready
+    for i in {1..20}; do
+      if "$DOCKER_COMMAND" info >/dev/null 2>&1; then
+        return 0
+      fi
+      sleep 0.5
+    done
+
+    echo "Error: $DOCKER_COMMAND daemon is not running after attempting to start Colima." >&2
+    echo "Please start your container runtime (e.g., 'colima start')." >&2
+    return 1
   fi
+
+  # Optionally try podman machine
+  if [[ "${DOCKER_COMMAND}" == "podman" ]] && command -v podman >/dev/null 2>&1; then
+    if ! podman info >/dev/null 2>&1; then
+      if command -v podman-machine >/dev/null 2>&1; then
+        echo "Starting podman machine..." >&2
+        podman machine start >/dev/null 2>&1 || true
+      elif command -v podman >/dev/null 2>&1; then
+        echo "Starting podman machine..." >&2
+        podman machine start >/dev/null 2>&1 || true
+      fi
+      for i in {1..20}; do
+        if podman info >/dev/null 2>&1; then
+          return 0
+        fi
+        sleep 0.5
+      done
+    fi
+    echo "Error: podman daemon is not running." >&2
+    return 1
+  fi
+
+  # Other platforms: do not attempt to start anything
+  echo "Error: ${DOCKER_COMMAND} daemon is not running." >&2
+  echo "Start it manually (e.g., Docker Desktop, colima start, or system service) before using this wrapper." >&2
+  return 1
 }
 
 use_remote_server() {
