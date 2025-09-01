@@ -34,7 +34,7 @@
     "codeReview",
     "displayFindings",
         "@Atlassian/getJiraIssue",
-    "@Atlassian/get_jira_issue",
+    "@Atlassian/jira_get_issue",
     "@Atlassian/jira_add_comment",
     "@Atlassian/addCommentToJiraIssue",
     "@Atlassian/jira_create_issue",
@@ -58,7 +58,6 @@
     "@GitHub/list_sub_issues",
     "@GitHub/get_issue_comments",
     "@GitHub/add_issue_comment",
-    "@GitHub/update_issue",
     "@Context7/resolve-library-id",
     "@Context7/get-library-docs"
   ],
