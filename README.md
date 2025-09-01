@@ -2000,16 +2000,16 @@ Legend:
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_get_commit_history">bb_get_commit_history</a></td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
       <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_get_file">bb_get_file</a></td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
       <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
@@ -2119,16 +2119,16 @@ Legend:
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_diff_branches">bb_diff_branches</a></td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
       <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_diff_commits">bb_diff_commits</a></td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
       <td>❎</td>
     </tr>
   </tbody>

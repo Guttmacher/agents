@@ -7,7 +7,8 @@ tools: [
   'resolve-library-id', 'get-library-docs',
   'jira_get_issue', 'getJiraIssue',
   'jira_add_comment', 'addCommentToJiraIssue',
-  'bb_get_pr', 'bb_ls_pr_comments', 'bb_add_pr_comment'
+  'bb_get_commit_history', 'bb_get_file', 'bb_get_pr', 'bb_ls_pr_comments', 'bb_add_pr_comment',
+  'bb_diff_branches', 'bb_diff_commits'
 ]
 model: GPT-5 (Preview)
 ---
