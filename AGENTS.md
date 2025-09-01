@@ -14,7 +14,7 @@ This is a documentation repository for AI coding assistant setup and configurati
 
 2. **Mode File Structure Test:** Validate that all mode files follow correct format (YAML frontmatter with tools list and contract section). Check manually by viewing each file.
 
-3. **Cross-Reference & Tool Lists Validation:** Ensure the tool matrix in README.md matches the tool lists in the individual mode files; verify with: `Rscript tests/smoke_rules.R`.
+3. **Cross-Reference & Tool Lists Validation:** Ensure the tool matrix in README.md matches the tool lists in the individual mode files; verify with: `Rscript tests/smoke_toolsets.R`.
 
 4. **Markdown Quality Check:** Run full markdown linting to ensure documentation quality. The linting will show many existing issues — this is expected and not blocking.
 
@@ -48,7 +48,7 @@ This is a documentation repository for AI coding assistant setup and configurati
 └── tests/
     ├── smoke_mcp_wrappers.py        # Smoke test runner for wrapper stdout (filters/validates stdout)
     ├── smoke_auth.sh                # Tests for authentication setup
-    └── smoke_rules.R                # R script for validating tool lists/matrix consistency
+    └── smoke_toolsets.R             # R script for validating tool lists/matrix consistency
 ```
 
 ## Mode Capabilities
