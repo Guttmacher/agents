@@ -141,7 +141,7 @@ From these four categories, we create **five modes**. **Code-GPT5** and **Code-S
     <tr>
       <td><a href="copilot/modes/Plan.chatmode.md">🔭 Plan</a></td>
       <td>Sonnet 4</td>
-      <td>Plan work, refine scope, shape issues/pages, organize PR scaffolding</td>
+      <td>Plan work, refine scope, shape issues, organize PR scaffolding</td>
       <td>Mutate planning artifacts + create/edit/review PRs (no merge/branch ops)</td>
     </tr>
     <tr>
@@ -795,11 +795,11 @@ Note: "Code" shows toolsets for "Code - GPT-5" and "Code - Sonnet-4" modes.
 
 📚 **For detailed tool descriptions, see the [Tools Glossary](TOOLS_GLOSSARY.md).**
 
-Legend:
-✅ Available
-❌ Unavailable (incompatible with mode)
-❎ Unavailable (disabled to save tokens)
-☑️ Unavailable (GitHub tool)
+**Legend:**
+- ✅ Available
+- ❌ Unavailable (incompatible with mode)
+- ❎ Unavailable (disabled to save tokens)
+- ☑️ Unavailable (GitHub tool)
 
 > By disabling unnecessary tools, we save 33,770 tokens (reducing consumption from 37,990 to just 4,220 tokens).
 
