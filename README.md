@@ -795,7 +795,13 @@ Note: "Code" shows toolsets for "Code - GPT-5" and "Code - Sonnet-4" modes.
 
 📚 **For detailed tool descriptions, see the [Tools Glossary](TOOLS_GLOSSARY.md).**
 
-Legend: ✅ available, ❌ unavailable in that mode.
+Legend:
+✅ Available
+❌ Unavailable (incompatible with mode)
+❎ Unavailable (disabled to save tokens)
+☑️ Unavailable (GitHub tool)
+
+> By disabling unnecessary tools, we save 33,770 tokens (reducing consumption from 37,990 to just 4,220 tokens).
 
 <table>
   <thead>
@@ -831,10 +837,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#findtestfiles">findTestFiles</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#search">search</a></td>
@@ -873,10 +879,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#testfailure">testFailure</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><em>Version Control &amp; Changes</em></td>
@@ -943,10 +949,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#githubrepo">githubRepo</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><em>Editor &amp; Extensions</em></td>
@@ -995,7 +1001,7 @@ Legend: ✅ available, ❌ unavailable in that mode.
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><strong>GitHub Pull Requests Extension (VS Code)</strong></td>
@@ -1006,17 +1012,17 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#activepullrequest">activePullRequest</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#copilotcodingagent">copilotCodingAgent</a></td>
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><strong>Context7</strong></td>
@@ -1055,10 +1061,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#getaccessibleatlassianresources">getAccessibleAtlassianResources</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><em>Jira Issues &amp; Operations</em></td>
@@ -1109,10 +1115,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_search">jira_search</a></td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#searchjiraissuesusingjql">searchJiraIssuesUsingJql</a></td>
@@ -1121,91 +1127,91 @@ Legend: ✅ available, ❌ unavailable in that mode.
       <td><a href="TOOLS_GLOSSARY.md#jira_transition_issue">jira_transition_issue</a></td>
       <td rowspan="2">❌</td>
       <td rowspan="2">❌</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#transitionjiraissue">transitionJiraIssue</a></td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_transitions">jira_get_transitions</a></td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#gettransitionsforjiraissue">getTransitionsForJiraIssue</a></td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_link_types">jira_get_link_types</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_project_versions">jira_get_project_versions</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_worklog">jira_get_worklog</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_download_attachments">jira_download_attachments</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_add_worklog">jira_add_worklog</a></td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_link_to_epic">jira_link_to_epic</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_create_issue_link">jira_create_issue_link</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_create_remote_issue_link">jira_create_remote_issue_link</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#getJiraIssueRemoteIssueLinks">getJiraIssueRemoteIssueLinks</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#getJiraProjectIssueTypesMetadata">getJiraProjectIssueTypesMetadata</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_delete_issue">jira_delete_issue</a></td>
@@ -1223,80 +1229,80 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_all_projects">jira_get_all_projects</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#getVisibleJiraProjects">getVisibleJiraProjects</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_project_issues">jira_get_project_issues</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_agile_boards">jira_get_agile_boards</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_board_issues">jira_get_board_issues</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_sprints_from_board">jira_get_sprints_from_board</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_sprint_issues">jira_get_sprint_issues</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#jira_search_fields">jira_search_fields</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#jira_get_user_profile">jira_get_user_profile</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#lookupJiraAccountId">lookupJiraAccountId</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#atlassianuserinfo">atlassianUserInfo</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Confluence Pages &amp; Content</em></td>
@@ -1309,35 +1315,35 @@ Legend: ✅ available, ❌ unavailable in that mode.
       <td><a href="TOOLS_GLOSSARY.md#confluence_create_page">confluence_create_page</a></td>
       <td rowspan="2">❌</td>
       <td rowspan="2">❌</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#createconfluencepage">createConfluencePage</a></td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_get_page">confluence_get_page</a></td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#getconfluencepage">getConfluencePage</a></td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#getconfluencepageancestors">getConfluencePageAncestors</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_update_page">confluence_update_page</a></td>
       <td rowspan="2">❌</td>
       <td rowspan="2">❌</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#updateconfluencepage">updateConfluencePage</a></td>
@@ -1351,100 +1357,100 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_get_page_children">confluence_get_page_children</a></td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#getconfluencepagedescendants">getConfluencePageDescendants</a></td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#getconfluencepagefootercomments">getConfluencePageFooterComments</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#getconfluencepageinlinecomments">getConfluencePageInlineComments</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_search">confluence_search</a></td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
-      <td rowspan="2">✅</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
+      <td rowspan="2">❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#searchconfluenceusingcql">searchConfluenceUsingCql</a></td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_get_comments">confluence_get_comments</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_add_comment">confluence_add_comment</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#createconfluencefootercomment">createConfluenceFooterComment</a></td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#createconfluenceinlinecomment">createConfluenceInlineComment</a></td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_get_labels">confluence_get_labels</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_add_label">confluence_add_label</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#getconfluencespaces">getConfluenceSpaces</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#getpagesinconfluencespace">getPagesInConfluenceSpace</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#confluence_search_user">confluence_search_user</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><strong>GitHub</strong></td>
@@ -1465,63 +1471,63 @@ Legend: ✅ available, ❌ unavailable in that mode.
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#create_repository">create_repository</a></td>
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_commit">get_commit</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#get_file_contents">get_file_contents</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_tag">get_tag</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#list_branches">list_branches</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#list_commits">list_commits</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#list_tags">list_tags</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#push_files">push_files</a></td>
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Pull Requests  Retrieval</em></td>
@@ -1532,52 +1538,52 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request">get_pull_request</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_comments">get_pull_request_comments</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_diff">get_pull_request_diff</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_files">get_pull_request_files</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_reviews">get_pull_request_reviews</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_status">get_pull_request_status</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#list_pull_requests">list_pull_requests</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Pull Requests  Actions</em></td>
@@ -1589,37 +1595,37 @@ Legend: ✅ available, ❌ unavailable in that mode.
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#add_comment_to_pending_review">add_comment_to_pending_review</a></td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#create_pending_pull_request_review">create_pending_pull_request_review</a></td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#create_pull_request">create_pull_request</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#create_pull_request_with_copilot">create_pull_request_with_copilot</a></td>
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❌</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#merge_pull_request">merge_pull_request</a></td>
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❌</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#request_copilot_review">request_copilot_review</a></td>
@@ -1631,23 +1637,23 @@ Legend: ✅ available, ❌ unavailable in that mode.
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#submit_pending_pull_request_review">submit_pending_pull_request_review</a></td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#update_pull_request">update_pull_request</a></td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#update_pull_request_branch">update_pull_request_branch</a></td>
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Issues</em></td>
@@ -1659,51 +1665,51 @@ Legend: ✅ available, ❌ unavailable in that mode.
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#add_issue_comment">add_issue_comment</a></td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#create_issue">create_issue</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_issue">get_issue</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#get_issue_comments">get_issue_comments</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#list_issues">list_issues</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#search_issues">search_issues</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#update_issue">update_issue</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Sub-Issues</em></td>
@@ -1714,16 +1720,16 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#list_sub_issues">list_sub_issues</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#reprioritize_sub_issue">reprioritize_sub_issue</a></td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
       <td>❌</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
@@ -1756,10 +1762,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#list_notifications">list_notifications</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>️❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Code Scanning &amp; Security</em></td>
@@ -1854,10 +1860,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#search_code">search_code</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#search_orgs">search_orgs</a></td>
@@ -1868,17 +1874,17 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#search_pull_requests">search_pull_requests</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#search_repositories">search_repositories</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#search_users">search_users</a></td>
@@ -1896,10 +1902,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_me">get_me</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Organization &amp; Teams</em></td>
@@ -1910,24 +1916,24 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_teams">get_teams</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#get_team_members">get_team_members</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#list_issue_types">list_issue_types</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>File Operations</em></td>
@@ -1941,7 +1947,7 @@ Legend: ✅ available, ❌ unavailable in that mode.
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><strong>Bitbucket</strong></td>
@@ -1959,17 +1965,17 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_ls_workspaces">bb_ls_workspaces</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_get_workspace">bb_get_workspace</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Repositories</em></td>
@@ -1980,52 +1986,52 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_ls_repos">bb_ls_repos</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_get_repo">bb_get_repo</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_get_commit_history">bb_get_commit_history</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_get_file">bb_get_file</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_list_branches">bb_list_branches</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_add_branch">bb_add_branch</a></td>
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_clone_repo">bb_clone_repo</a></td>
       <td>❌</td>
       <td>❌</td>
       <td>❌</td>
-      <td>✅</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><em>Pull Requests</em></td>
@@ -2036,10 +2042,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_ls_prs">bb_ls_prs</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_get_pr">bb_get_pr</a></td>
@@ -2099,10 +2105,10 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_search">bb_search</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><em>Diff</em></td>
@@ -2113,17 +2119,17 @@ Legend: ✅ available, ❌ unavailable in that mode.
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#bb_diff_branches">bb_diff_branches</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_diff_commits">bb_diff_commits</a></td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
+      <td>❎</td>
     </tr>
   </tbody>
 </table>

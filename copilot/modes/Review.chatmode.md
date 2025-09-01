@@ -1,33 +1,13 @@
 ---
 description: 'Review Mode'
 tools: [
-  'codebase', 'usages', 'problems', 'changes', 'testFailure', 'terminalLastCommand',
+  'codebase', 'search', 'searchResults', 'usages', 'problems', 'changes', 'terminalLastCommand',
   'think', 'todos',
-  'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'search',
+  'fetch',
   'resolve-library-id', 'get-library-docs',
-  'get_commit', 'get_file_contents', 'get_me', 'get_teams', 'get_team_members', 'list_issue_types', 'list_branches', 'list_commits', 'list_tags',
-  'get_pull_request', 'get_pull_request_comments', 'get_pull_request_diff', 'get_pull_request_files',
-    'get_pull_request_reviews', 'get_pull_request_status', 'list_pull_requests', 'activePullRequest',
-  'add_comment_to_pending_review', 'create_pending_pull_request_review', 'submit_pending_pull_request_review',
-  'list_notifications', 'search_code', 'search_pull_requests', 'search_repositories', 'list_sub_issues',
-  'add_issue_comment', 'get_issue', 'get_issue_comments', 'list_issues', 'search_issues',
-  'get_tag', 'update_pull_request',
-  'getAccessibleAtlassianResources', 'atlassianUserInfo',
-  'addCommentToJiraIssue', 'createConfluenceFooterComment', 'createConfluenceInlineComment', 'getConfluencePage', 'getConfluencePageDescendants', 'getConfluencePageAncestors',
-  'getConfluencePageFooterComments', 'getConfluencePageInlineComments', 'getConfluenceSpaces', 'getPagesInConfluenceSpace',
-  'getJiraIssue', 'getJiraProjectIssueTypesMetadata', 'getTransitionsForJiraIssue', 'getVisibleJiraProjects', 'getJiraIssueRemoteIssueLinks',
-  'lookupJiraAccountId', 'searchConfluenceUsingCql', 'searchJiraIssuesUsingJql',
-  'jira_add_comment', 'jira_get_issue', 'jira_search', 'jira_get_all_projects', 'jira_get_project_issues',
-    'jira_get_agile_boards', 'jira_get_board_issues', 'jira_get_sprints_from_board', 'jira_get_sprint_issues',
-  'jira_search_fields', 'jira_get_user_profile', 'jira_get_transitions',
-  'jira_get_link_types', 'jira_get_project_versions', 'jira_get_worklog', 'jira_download_attachments', 'jira_add_worklog',
-  'confluence_get_page', 'confluence_get_page_children', 'confluence_get_comments', 'confluence_search',
-    'confluence_get_labels', 'confluence_search_user',
-  'bb_ls_workspaces', 'bb_get_workspace',
-  'bb_ls_repos', 'bb_get_repo', 'bb_get_commit_history', 'bb_get_file', 'bb_list_branches',
-  'bb_ls_prs', 'bb_get_pr', 'bb_ls_pr_comments', 'bb_add_pr_comment',
-  'bb_search',
-  'bb_diff_branches', 'bb_diff_commits'
+  'jira_get_issue', 'getJiraIssue',
+  'jira_add_comment', 'addCommentToJiraIssue',
+  'bb_get_pr', 'bb_ls_pr_comments', 'bb_add_pr_comment'
 ]
 model: GPT-5 (Preview)
 ---
