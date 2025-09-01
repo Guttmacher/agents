@@ -20,7 +20,7 @@ Work organizer for planning artifacts.
 **Contract:** Remote planning only. NO local/repo changes.
 
 ## Allowed
-✅ Jira issues (CRUD)  
+✅ Jira issues (CRUD)
 ✅ PR create/edit/review  
 ✅ Read repo metadata
 
