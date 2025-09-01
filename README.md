@@ -1538,31 +1538,31 @@ Legend:
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request">get_pull_request</a></td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_comments">get_pull_request_comments</a></td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_diff">get_pull_request_diff</a></td>
       <td>❎</td>
-      <td>❎</td>
+      <td>☑️</td>
       <td>❎</td>
       <td>❎</td>
     </tr>
     <tr style="background-color: #ffffff;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_files">get_pull_request_files</a></td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
-      <td>❎</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
+      <td>☑️</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#get_pull_request_reviews">get_pull_request_reviews</a></td>
