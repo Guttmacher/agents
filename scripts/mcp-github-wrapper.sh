@@ -60,7 +60,7 @@ check_docker_daemon() {
       if command -v podman-machine >/dev/null 2>&1; then
         echo "Starting podman machine..." >&2
         podman machine start >/dev/null 2>&1 || true
-      elif command -v podman >/dev/null 2>&1; then
+      else
         echo "Starting podman machine..." >&2
         podman machine start >/dev/null 2>&1 || true
       fi
