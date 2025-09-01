@@ -50,9 +50,17 @@ get_keychain_email() {
 
 check_docker_daemon() {
   if ! "$DOCKER_COMMAND" info &> /dev/null; then
-    echo "Error: $DOCKER_COMMAND daemon is not running." >&2
-    echo "Start it with: 'colima start' (macOS) or start your docker/Podman service before using this wrapper." >&2
-    return 1
+    # Check if Colima is running
+    if ! colima status >/dev/null 2>&1; then
+      echo "Starting Colima..." >&2
+      colima start --quiet
+    fi
+    # Check again after potential Colima start
+    if ! "$DOCKER_COMMAND" info &> /dev/null; then
+      echo "Error: $DOCKER_COMMAND daemon is not running." >&2
+      echo "Start it with: 'colima start' (macOS) or start your docker/Podman service before using this wrapper." >&2
+      return 1
+    fi
   fi
   return 0
 }

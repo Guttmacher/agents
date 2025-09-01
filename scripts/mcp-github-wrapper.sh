@@ -17,9 +17,17 @@ REMOTE_MCP_URL="https://api.githubcopilot.com/mcp/"
 # --- Helper Functions ---
 check_docker_daemon() {
   if ! "$DOCKER_COMMAND" info &> /dev/null; then
-    echo "Error: Docker daemon ('$DOCKER_COMMAND') is not running." >&2
-    echo "Please start your container runtime (e.g., 'colima start')." >&2
-    return 1
+    # Check if Colima is running
+    if ! colima status >/dev/null 2>&1; then
+      echo "Starting Colima..." >&2
+      colima start --quiet
+    fi
+    # Check again after potential Colima start
+    if ! "$DOCKER_COMMAND" info &> /dev/null; then
+      echo "Error: Docker daemon ('$DOCKER_COMMAND') is not running." >&2
+      echo "Please start your container runtime (e.g., 'colima start')." >&2
+      return 1
+    fi
   fi
 }
 
