@@ -10,6 +10,7 @@ set -euo pipefail
 SERVICE_NAME="github-mcp"
 ACCOUNT_NAME="token"
 DOCKER_COMMAND="${DOCKER_COMMAND:-docker}"
+export DOCKER_HOST="${DOCKER_HOST:-unix://$HOME/.colima/default/docker.sock}"
 DOCKER_IMAGE="${MCP_GITHUB_DOCKER_IMAGE:-ghcr.io/github/github-mcp-server:latest}"
 REMOTE_MCP_URL="https://api.githubcopilot.com/mcp/"
 

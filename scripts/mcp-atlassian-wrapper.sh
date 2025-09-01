@@ -12,6 +12,7 @@ set -euo pipefail
 SERVICE_NAME="atlassian-mcp"
 ACCOUNT_NAME="token"
 DOCKER_COMMAND="${DOCKER_COMMAND:-docker}"
+export DOCKER_HOST="${DOCKER_HOST:-unix://$HOME/.colima/default/docker.sock}"
 MCP_ATLASSIAN_IMAGE="${MCP_ATLASSIAN_IMAGE:-ghcr.io/sooperset/mcp-atlassian:latest}"
 AUTH_METHOD="${AUTH_METHOD:-api_token}"
 REMOTE_MCP_URL="https://mcp.atlassian.com/v1/sse"
