@@ -32,7 +32,7 @@ This repository provides installation guides, configuration files, scripts, and 
 └── tests/
     ├── smoke_mcp_wrappers.py              # Smoke test runner for wrapper stdout (filters/validates stdout)
     ├── smoke_auth.sh                      # Tests for authentication setup
-    └── smoke_toolsets.R                  # R script for validating tool lists/matrix consistency
+    └── smoke_toolsets.R                   # R script for validating tool lists/matrix consistency
 ```
 
 ## AI Assistants
