@@ -2010,7 +2010,8 @@ Note: "Code" shows toolsets for "Code - GPT-5" and "Code - Sonnet-4" modes.
       <td>✅</td>
       <td>✅</td>
       <td>✅</td>
-      <td>❎</td>
+      <td>✅</td>
+      <td></td>
     </tr>
     <tr style="background-color: #f8f9fa;">
       <td><a href="TOOLS_GLOSSARY.md#bb_list_branches">bb_list_branches</a></td>

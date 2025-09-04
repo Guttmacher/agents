@@ -10,7 +10,7 @@ tools: [
   'jira_get_issue', 'getJiraIssue',
   'jira_add_comment', 'addCommentToJiraIssue',
   'jira_create_issue', 'createJiraIssue', 'jira_update_issue', 'editJiraIssue',
-  'bb_get_pr', 'bb_ls_pr_comments', 'bb_add_pr_comment', 'bb_add_pr', 'bb_update_pr'
+  'bb_get_pr', 'bb_ls_pr_comments', 'bb_add_pr_comment', 'bb_add_pr', 'bb_update_pr', 'bb_get_file'
 ]
 model: Claude Sonnet 4
 ---
