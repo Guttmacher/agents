@@ -12,7 +12,7 @@ tools: [
   'jira_create_issue', 'createJiraIssue', 'jira_update_issue', 'editJiraIssue',
   'bb_get_pr', 'bb_ls_pr_comments', 'bb_add_pr_comment', 'bb_add_pr', 'bb_update_pr', 'bb_get_file'
 ]
-model: GPT-5 (Preview)
+model: GPT-5
 ---
 
 Implementation mode; small or large changes; prefer minimal, test-backed edits; plan for non-trivial.
