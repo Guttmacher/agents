@@ -9,12 +9,14 @@ This repository provides installation guides, configuration files, scripts, and 
 ├── README.md                              # This document
 ├── TOOLS_GLOSSARY.md                      # Glossary of all available tools
 ├── copilot/
-│   └── modes/
-│       ├── QnA.chatmode.md                # Strict read-only Q&A / analysis (no mutations)
-│       ├── Plan.chatmode.md               # Remote planning & artifact curation + PR create/edit/review (no merge/branch)
-│       ├── Code-Sonnet4.chatmode.md       # Full coding, execution, PR + branch ops (Claude Sonnet 4 model)
-│       ├── Code-GPT5.chatmode.md          # Full coding, execution, PR + branch ops (GPT-5 model)
-│       ├── Review.chatmode.md             # PR & issue review feedback (comments only)
+│   ├── modes/
+│   │   ├── QnA.chatmode.md                # Strict read-only Q&A / analysis (no mutations)
+│   │   ├── Plan.chatmode.md               # Remote planning & artifact curation + PR create/edit/review (no merge/branch)
+│   │   ├── Code-Sonnet4.chatmode.md       # Full coding, execution, PR + branch ops (Claude Sonnet 4 model)
+│   │   ├── Code-GPT5.chatmode.md          # Full coding, execution, PR + branch ops (GPT-5 model)
+│   │   └── Review.chatmode.md             # PR & issue review feedback (comments only)
+│   └── toolsets/
+│       └── minimal.toolsets.jsonc         # Minimal toolsets for Agent mode
 ├── scripts/
 │   ├── mcp-github-wrapper.sh              # macOS/Linux GitHub MCP wrapper script
 │   ├── mcp-github-wrapper.ps1             # Windows GitHub MCP wrapper script
@@ -53,8 +55,8 @@ This repository provides guidance to configure three primary AI assistants -- Gi
 | Prompts per month                             | 300             | —               | ?            |
 | GPT-4.1 and 5 mini do not count towards limit | ✅              | n/a              | n/a          |
 | Additional usage                              | $.04/prompt     | API pricing      | ?            |
-| Context window                                | 112k tokens     | 200k tokens      | 200k tokens  |
-
+| Context window                                | 128k tokens     | 200k tokens      | 200k tokens  |
+| Context window after system prompt | 108k to 112k tokens | ? | ? |
 
 > Note: Amazon states that Q Developer Pro provides ["increased limits of agentic requests"](https://aws.amazon.com/q/developer/pricing/) compared to their free tier, but do not state those limits. As of August 27, they write, "Additional usage included until Sep 1, 2025," which suggests that will soon determine what the new limits are. They had previously stated these would be 1000; however, their equally priced [Kiro subscription](https://kiro.dev/pricing/) offers 125 "spec" requests and 225 "vibe requests" per month. For overages, they price a "spec" request four times the price of a "vibe" request. Since (125 x 4) + 225 = 725, this implies a corresponding Q usage limit of 725 monthly requests.
 
@@ -116,9 +118,26 @@ Note: Both Q and Copilot can read images. However, Q requires you to save and at
 
 
 ## Modes
+VS Code's built-in modes (Ask, Edit, Agent) differ from custom modes in their tool availability and persistence:
+
+- **Built-in modes** do not remember which tools you have enabled or disabled across sessions. Each time you restart VS Code, all MCP servers are re-enabled by default, which can consume a significant portion of Copilot's context window if you have many servers installed.
+- **Custom modes** define their own curated toolsets, allowing for more controlled and persistent configurations tailored to specific use cases.
+
+**To optimize the built-in Agent mode for better performance**, we recommend creating a minimal toolset that disables all non-essential tools. This helps prevent overwhelming the context window with too many active tools.
+1. Save (minimal.toolsets.jsonc)[copilot/toolsets/minimal.toolsets.jsonc] to your VS Code user prompts folder (see (Add Modes to VS Code)[#Add-Modes-to-VS-Code] below).
+2. From the Chat pane:
+- Select "Agent" mode
+- Open the "Configure tools..." menu
+- Unselect all tools using the "Toggle all checkboxes" button
+- Toggle "Minimal VS Code" under "User Defined Tool Sets"
+
+> Without this, installing multiple MCP servers can overwhelm the context window, leading to degraded performance.
+
+Custom modes like those provided in this repository already define their own toolsets (e.g., QnA mode includes only read-only tools, while Code modes include full editing capabilities). You can customize these toolsets further by editing the `tools` array in the respective `.chatmode.md` files.
+
 ### Modes Overview
 
-We define **four categories** of modes for different use cases, that follow a **privilege gradient:** **QnA < Review** (adds review + issue comments) **< Plan** (adds planning artifact + PR creation/edit) **< Code** (full lifecycle incl. merge & branch ops).
+We define **four categories** of custom modes for different use cases, that follow a **privilege gradient:** **QnA < Review** (adds review + issue comments) **< Plan** (adds planning artifact + PR creation/edit) **< Code** (full lifecycle incl. merge & branch ops).
 
 From these four categories, we create **five modes**. **Code-GPT5** and **Code-Sonnet4** modes provide the same toolsets with different prompts. We do this because these models respond differently to prompts and possess different strengths. For reference, see OpenAI's [GPT-5 prompting guide](https://cookbook.openai.com/examples/gpt-5/gpt-5_prompting_guide) and Anthropic's [Claude 4 prompt engineering best practices](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices).
 
