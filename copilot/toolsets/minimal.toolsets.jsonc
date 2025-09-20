@@ -1,0 +1,209 @@
+{
+	"Minimal VS Code": {
+		"tools": [
+			/////////////
+			// Changes //
+			/////////////
+			// Get diffs of changed file:
+			"changes",
+			///////////
+			// Fetch //
+			///////////
+			// Fetch the main content from a web page. You should
+			// include the URL of the page you want to fetch:
+			"fetch",
+			// Use this tool to think deeply about the user's reqeust
+			// and organize your thoughts.  This tool helps improve
+			// response quality by allowing the model to consider the
+			// request carefully, brainstorm solutions, and plan complex
+			// tasks. It's particularly useful for:
+			// 1. Exploring repository issues and brainstorming bug
+			//    fixes
+			// 2. Analyzing test resutlts and planning fixes
+			// 3. Planning complex refactoring approaches
+			// 4. Designing new features and architecture
+			// 5. Organizing debugging hypotheses
+			//    This tool logs your thought process for transparency
+			//    but doesn't execute any code or make changes.
+			///////////
+			// Todos //
+			///////////
+			// Tool for managing and tracking todo items for task
+			// planning.
+			"todos",
+			////////////
+			// Usages //
+			////////////
+			// Find references, definitions, and other usages of a
+			// symbol.
+			"usages",
+			//////////
+			// Edit //
+			//////////////////////////////////
+			// Edit files in your workspace //
+			//////////////////////////////////
+			// Create new directories in your workspace:
+			"createDirectory",
+			// Create new files:
+			"createFile",
+			// Edit files:
+			"editFiles",
+			/////////////////
+			// runCommands //
+			///////////////////////////////////
+			// Runs commands in the terminal //
+			///////////////////////////////////
+			// Get the output of a terminal command previously started
+			// with run_in_terminal:
+			"getTerminalOutput",
+			// Tool for running commands in the terminal:
+			"runInTerminal",
+			// Get the last commmand run in the active terminal:
+			"terminalLastCommand",
+			// Get the current selection in the active terminal:
+			"terminalSelection",
+			////////////
+			// Search //
+			/////////////////////////////////////////////
+			// Search and read files in your workspace //
+			/////////////////////////////////////////////
+			// == codebase ==
+			// Find relevant file chunks, symbols, and other information
+			// in your codebase:
+			"codebase",
+			// == fileSearch ==
+			// Search for files in the workspace by glob pattern. This
+			// only returns the paths of matching files. Use this tool
+			// when you know the exact filename pattern of the files
+			// you're searching for. Glob patterns match from the root
+			// of the workspace folder. Examples:
+			// - **/*.{js,ts} to match all js/ts files in the workspace
+			// - src/** to match all js files in the top-level src
+			//   folder
+			// - /foo//*.js to match all js files under any foo folder
+			//   in the workspace
+			"fileSearch",
+			// == listDirectory ==
+			// List the contents of a directory. Result with have the
+			// name of the child. If the name ends in /, it's a folder,
+			// otherwise a file.
+			"listDirectory",
+			// == readFile ==
+			// Read the contents of a file. 
+			// You must specify the line range you're interested in.
+			// Line numbers are 1-indexed. If they file contents
+			// returned are sufficient for your task, you may call this
+			// tool again to retrieve more content. Prefer reading
+			// larger ranges over doing many small reads.
+			"readFile",
+			// == textSearch ==
+			// Do a fast text search in the workspace. Use this tool
+			// when you want to search with an exact string or regex. If
+			// you are not sure what words will appear in the workspace,
+			// prefer using regex patterns with an alternation (|) or
+			// character classes to search for multiple potential words
+			// at once instead of making separate searches. For example,
+			// use 'function|method|procedure' to look for all of those
+			// words at once. Use includePattern to search within files
+			// matching a specific pattern, or in a specific file, using
+			// a relative path. Use this tool when you want to see an
+			// overview of a particular file, instead of using read_file
+			// many times to look for code within a file.
+			"textSearch",
+		],
+		"description": "Minimal tools for coding tasks",
+		"icon": "vscode"
+	},
+	"Minimal Jira": {
+		// This toolset lists two tools for each operation, with each
+		// element of the pair corresponding to a different MCP server
+		// so one can use either the Atlassian Remote MCP Server or
+		// @sooperset/mcp-atlassian
+		"tools": [
+			// == Get Issue ==
+			 "jira_get_issue",
+			 "getJiraIssue",
+			// == Create Issue ==
+            "jira_create_issue",
+			"createJiraIssue", 
+			// == Edit Issue ==
+            "jira_update_issue",
+			"editJiraIssue",
+		],
+		"description": "Minimal tools for working with Jira",
+		"icon": "issue-closed",
+	},
+	"Minimal Bitbucket": {
+		// These tools correspond to
+		// @aashari/mcp-server-atlassian-bitbucket
+		"tools": [
+			// == Commit History ==
+            "bb_get_commit_history",
+			// == Get File (at revision) ==
+			"bb_get_file",
+			// == Diffs ==
+			"bb_diff_branches",
+			"bb_diff_commits",
+			// == Pull Requests ==
+			"bb_get_pr",
+			"bb_ls_pr_comments",
+			"bb_add_pr_comment",
+			"bb_add_pr",
+			"bb_update_pr"
+		],
+		"description": "Minimal tools for working with Bitbucket",
+		"icon": "repo-forked",
+	},
+	"Minimal GitHub": {
+		"tools": [
+			// == Commit History ==
+			// List branches:
+			"list_branches",
+			// Get list of commits of a branch in a GitHub repository.
+			// Returns at least 30 results per page by default, but can
+			// return more if specified using the perPage parameter (up
+			// to 100).)
+			"list_commits",
+			// == Get File ==
+			// Get the contents of a file from a GitHub repository
+			"get_file_contents",
+			// == Pull Requests ==
+			// List pull requests:
+			"list_pull_requests",
+			// Get details of a specific pull request:
+			"get_pull_request",
+			// Get the status of as specified pull request:
+			"get_pull_request_status",
+			// Get the files changed in a specific pull request:
+			"get_pull_request_files",
+			// Get the diff of a pull request:
+			"get_pull_request_diff",
+			// Get comments for a specific pull request:
+			"list_pull_request_comments",
+			// Get reviews for a specific pull request:
+			"list_pull_request_reviews",
+			// Update an existing pull request:
+			"update_pull_request",
+			// Create and submit a review for a pull request:
+			"create_and_submit_pull_request_review",
+			// Create a pending review for a pull request:
+			"create_pending_pull_request_review",
+			// Submit the requester's pending pull request review:
+			"submit_pending_pull_request_review",
+			// Add a review comment to the requester's latest pending
+			// pull request review:
+			"add_comment_to_pending_review",
+			// == Issues ==
+			// Get details of a specific issue in a GitHub repository:
+			"get_issue",
+			// Get comments for a specific issue in a GitHub repository:
+			"get_issue_comments",
+			// Add a comment to a specific issue in a GitHub repository:
+			"add_issue_comment",
+			// Update an existing issue in a GitHub repository:
+			"update_issue"
+		],
+		"description": "Minimal tools for working with GitHub",
+		"icon": "github"
+	}
+}
