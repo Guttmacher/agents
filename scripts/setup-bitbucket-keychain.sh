@@ -17,6 +17,17 @@ echo "Setting up Bitbucket MCP credentials in macOS Keychain..."
 echo
 
 # Get API token
+echo "Create a scoped API token at: https://id.atlassian.com/manage-profile/security/api-tokens"
+echo "Required scopes:"
+echo "  • read:me"
+echo "  • read:pullrequest:bitbucket"
+echo "  • read:repository:bitbucket"
+echo "  • read:user:bitbucket"
+echo "  • read:workspace:bitbucket"
+echo "Optional (for write operations):"
+echo "  • write:pullrequest:bitbucket"
+echo "  • write:repository:bitbucket"
+echo
 echo -n "Enter your Atlassian scoped API token: "
 read -s API_TOKEN
 echo
