@@ -29,11 +29,11 @@ get_keychain_token() {
   security find-generic-password -s "$SERVICE_NAME" -a "atlassian-api-token" -w 2>/dev/null || return 1
 }
 
-get_keychain_username() {
+get_keychain_email() {
   if [[ "$(uname)" != "Darwin" ]]; then
     return 1
   fi
-  security find-generic-password -s "$SERVICE_NAME" -a "username" -w 2>/dev/null || return 1
+  security find-generic-password -s "$SERVICE_NAME" -a "email" -w 2>/dev/null || return 1
 }
 
 get_keychain_workspace() {
@@ -47,7 +47,7 @@ get_keychain_workspace() {
 if [[ -z "${ATLASSIAN_USER_EMAIL:-}" ]]; then
   # Try keychain first (macOS only) - reuse username field for email
   if [[ "$(uname)" == "Darwin" ]]; then
-    if KEYCHAIN_EMAIL=$(get_keychain_username) && [[ -n "$KEYCHAIN_EMAIL" ]]; then
+    if KEYCHAIN_EMAIL=$(get_keychain_email) && [[ -n "$KEYCHAIN_EMAIL" ]]; then
       ATLASSIAN_USER_EMAIL="$KEYCHAIN_EMAIL"
       echo "Note: ATLASSIAN_USER_EMAIL retrieved from keychain as '${ATLASSIAN_USER_EMAIL}'." >&2
     fi
