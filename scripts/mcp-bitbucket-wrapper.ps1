@@ -2,17 +2,24 @@
 .SYNOPSIS
   Bitbucket MCP Server Wrapper (Windows PowerShell)
 .DESCRIPTION
-  Securely launches the Bitbucket MCP server using app password from Windows Credential Manager.
-  Username is provided via environment variable (set in JSON config).
+  Securely launches the Bitbucket MCP server using scoped API token from Windows Credential Manager.
+  Email is provided via environment variable or credential manager.
 
-  Create Generic Credential for app password only:
+  Create Generic Credential for API token:
     Control Panel > User Accounts > Credential Manager > Windows Credentials > Add a generic credential
       Internet or network address: bitbucket-mcp
-      User name: app-password
-      Password: <your Bitbucket app password>
+      User name: atlassian-api-token
+      Password: <your Atlassian scoped API token>
+
+  Create Generic Credential for email (optional):
+    Control Panel > User Accounts > Credential Manager > Windows Credentials > Add a generic credential
+      Internet or network address: bitbucket-mcp
+      User name: email
+      Password: <your Atlassian email>
 
   Or via PowerShell:
-    cmd /c "cmdkey /add:bitbucket-mcp /user:app-password /pass:<app_password>"
+    cmd /c "cmdkey /add:bitbucket-mcp /user:atlassian-api-token /pass:<api_token>"
+    cmd /c "cmdkey /add:bitbucket-mcp /user:email /pass:<your_email>"
 
 .PARAMETER Args
   Additional arguments passed through to the MCP server process.
@@ -49,7 +56,7 @@ function Get-StoredPassword {
   }
 }
 
-function Get-StoredUsername {
+function Get-StoredEmail {
   try {
     # Check if credential exists
     $listing = cmd /c "cmdkey /list" 2>$null
@@ -63,7 +70,7 @@ function Get-StoredUsername {
     }
 
     $cred = Get-StoredCredential -Target 'bitbucket-mcp'
-    if ($cred -and $cred.UserName -eq 'username' -and $cred.Password) {
+    if ($cred -and $cred.UserName -eq 'email' -and $cred.Password) {
       return $cred.Password
     }
     return $null
@@ -105,45 +112,44 @@ if (-not $env:BITBUCKET_DEFAULT_WORKSPACE) {
   }
 }
 
-# Username derivation with fallback hierarchy: env var -> credential manager -> git email username -> OS username
-if (-not $env:ATLASSIAN_BITBUCKET_USERNAME) {
+# Email derivation with fallback hierarchy: env var -> credential manager -> git email
+if (-not $env:ATLASSIAN_USER_EMAIL) {
   # Try credential manager first
-  $credentialUsername = Get-StoredUsername
-  if ($credentialUsername) {
-    $env:ATLASSIAN_BITBUCKET_USERNAME = $credentialUsername
-    [Console]::Error.WriteLine("Note: ATLASSIAN_BITBUCKET_USERNAME retrieved from credential manager as '$($env:ATLASSIAN_BITBUCKET_USERNAME)'.")
+  $credentialEmail = Get-StoredEmail
+  if ($credentialEmail) {
+    $env:ATLASSIAN_USER_EMAIL = $credentialEmail
+    [Console]::Error.WriteLine("Note: ATLASSIAN_USER_EMAIL retrieved from credential manager as '$($env:ATLASSIAN_USER_EMAIL)'.")
   } else {
-    # If still not set, try git email username
+    # If still not set, try git email
     $gitEmail = $null
     if (Get-Command git -ErrorAction SilentlyContinue) {
       try {
         $gitEmail = (git config --get user.email 2>$null).Trim()
       } catch {}
     }
-    if ($gitEmail -and $gitEmail.Contains('@')) {
-      $env:ATLASSIAN_BITBUCKET_USERNAME = $gitEmail.Split('@')[0]
-      [Console]::Error.WriteLine("Note: Using Bitbucket username '$($env:ATLASSIAN_BITBUCKET_USERNAME)' derived from git user.email. Set ATLASSIAN_BITBUCKET_USERNAME to override.")
+    if ($gitEmail) {
+      $env:ATLASSIAN_USER_EMAIL = $gitEmail
+      [Console]::Error.WriteLine("Note: Using Atlassian email '$($env:ATLASSIAN_USER_EMAIL)' from git user.email. Set ATLASSIAN_USER_EMAIL to override.")
     } else {
-      # Final fallback to OS username
-      $env:ATLASSIAN_BITBUCKET_USERNAME = $env:USERNAME
-      [Console]::Error.WriteLine("Note: Using Bitbucket username '$($env:ATLASSIAN_BITBUCKET_USERNAME)' from OS username. Set ATLASSIAN_BITBUCKET_USERNAME to override.")
+      Write-Error "ATLASSIAN_USER_EMAIL is required for scoped API token authentication. Set it with: `$env:ATLASSIAN_USER_EMAIL='your.email@company.com'"
+      exit 1
     }
   }
 }
 
-# Get app password from environment or credential manager
-if ($env:ATLASSIAN_BITBUCKET_APP_PASSWORD) {
-  $appPassword = $env:ATLASSIAN_BITBUCKET_APP_PASSWORD
+# Get scoped API token from environment or credential manager
+if ($env:ATLASSIAN_API_TOKEN) {
+  $apiToken = $env:ATLASSIAN_API_TOKEN
 } else {
   try {
-    $appPassword = Get-StoredPassword -Target 'bitbucket-mcp'
+    $apiToken = Get-StoredPassword -Target 'bitbucket-mcp'
   } catch {
-    Write-Error "Could not retrieve Bitbucket app password. Either set environment variable ATLASSIAN_BITBUCKET_APP_PASSWORD or create credential 'bitbucket-mcp' with user 'app-password' in Windows Credential Manager."
+    Write-Error "Could not retrieve Atlassian API token. Either set environment variable ATLASSIAN_API_TOKEN or create credential 'bitbucket-mcp' with user 'atlassian-api-token' in Windows Credential Manager."
     exit 1
   }
 }
 
-$env:ATLASSIAN_BITBUCKET_APP_PASSWORD = $appPassword
+$env:ATLASSIAN_API_TOKEN = $apiToken
 
 # Prefer npm-installed CLI; fallback to npx
 $CLI_BIN = $env:MCP_BITBUCKET_CLI_BIN; if (-not $CLI_BIN) { $CLI_BIN = 'mcp-atlassian-bitbucket' }
