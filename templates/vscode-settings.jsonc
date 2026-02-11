@@ -10,6 +10,11 @@
     "markdown": true,
     "scminput": false
   },
+  
+  // Enable the new edit mode based on tool-calling. With this setting
+  // enabled, you don't lose your chat history when you switch between
+  // edit and any of the other modes (ask, agent).
+  "chat.edits2.enabled": true,
 
   // When this setting is true, Copilot Chat may search your local
   // workspace and repository to locate relevant code snippets, symbols,
