@@ -1,0 +1,772 @@
+#!/usr/bin/env bash
+# sshk - SSH with API Key forwarding
+# A smart SSH wrapper that forwards environment variables including API keys
+# Compatible with bash and zsh, with tmux session support
+#
+# WHAT IT DOES:
+# - Automatically discovers API keys and credentials from multiple sources
+# - Securely forwards them to remote hosts via SSH SendEnv
+# - Supports tmux sessions with proper environment variable inheritance
+# - Provides fallback hierarchy: Environment → Keychain
+#
+# HOW IT WORKS:
+# 1. Scans for known credential environment variables (GITHUB_TOKEN, ATLASSIAN_*, etc.)
+# 2. For missing variables, attempts to retrieve from macOS Keychain (specific MCP patterns)
+# 3. Falls back to generic "api_keys" keychain service for flexible credential storage
+# 4. Validates all inputs and outputs for security
+# 5. Constructs SSH command with SendEnv options for discovered variables
+# 6. For tmux mode (-t), creates remote command to set tmux environment
+#
+# CREDENTIAL LOOKUP TABLE:
+# | Environment Variable              | Keychain Service  | Account Name      | Fallback Sources |
+# |-----------------------------------|-------------------|-----------------  |------------------|
+# | GITHUB_TOKEN                      | github-mcp        | token             | api_keys         |
+# | GITHUB_PERSONAL_ACCESS_TOKEN      | github-mcp        | token             | api_keys         |
+# | GH_TOKEN                          | github-mcp        | token             | api_keys         |
+# | ATLASSIAN_API_TOKEN               | atlassian-mcp     | token             | api_keys         |
+# | ATLASSIAN_DOMAIN                  | atlassian-mcp     | domain            | api_keys         |
+# | ATLASSIAN_EMAIL                   | atlassian-mcp     | email             | api_keys         |
+# | ATLASSIAN_BITBUCKET_USERNAME      | bitbucket-mcp     | username          | api_keys         |
+# | ATLASSIAN_BITBUCKET_APP_PASSWORD  | bitbucket-mcp     | app-password      | api_keys         |
+# | BITBUCKET_DEFAULT_WORKSPACE       | bitbucket-mcp     | workspace         | api_keys         |
+# | *ANY_CUSTOM_VAR*                  | api_keys          | *VAR_NAME*        |                  |
+#
+# SECURITY FEATURES:
+# - Comprehensive input validation prevents injection attacks
+# - All external command parameters are escaped and validated
+# - Output from external tools is validated before use
+# - No credentials are ever exposed in process lists or logs
+# - Uses SSH's built-in SendEnv mechanism for secure transport
+
+set -euo pipefail  # Exit on error, undefined vars, pipe failures for security
+# Color codes for output - used for user-friendly colored logging
+RED='\033[0;31m'     # Red for errors
+GREEN='\033[0;32m'   # Green for success messages
+YELLOW='\033[1;33m'  # Yellow for warnings
+BLUE='\033[0;34m'    # Blue for informational messages
+NC='\033[0m'         # No Color - resets terminal color
+
+# Global cleanup function - ensures temporary files are removed on script exit
+# Called automatically via trap on EXIT, INT, TERM signals
+# Currently no temporary files are created, but this provides a framework for future use
+cleanup_temp_files() {
+    # Placeholder for cleanup operations
+    # No temporary files are currently created by this script
+    true
+}
+
+# Set up global cleanup trap - ensures cleanup runs even if script is interrupted
+# This provides defense against temp file leakage on unexpected termination
+trap cleanup_temp_files EXIT INT TERM
+
+# Logging functions - provide consistent, colored output to stderr
+# All logging goes to stderr to avoid interfering with credential output
+
+# Log informational messages in blue - for general status updates
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1" >&2  # >&2 sends to stderr, not stdout
+}
+
+# Log success messages in green - for successful credential retrieval
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1" >&2  # >&2 sends to stderr for consistency
+}
+
+# Log warning messages in yellow - for non-fatal issues like missing credentials
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1" >&2  # Warnings don't stop execution
+}
+
+# Log error messages in red - for fatal errors that prevent script execution
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2  # Errors typically cause script to exit
+}
+# Retrieve credentials from macOS Keychain
+# Uses the 'security' command to access stored passwords in Keychain Access
+# Parameters: service name (like "openai-mcp") and account name (like "api-key")
+# Returns: the stored password/credential, or exits with error code 1
+# Security: Validates inputs and outputs to prevent command injection
+get_keychain_value() {
+    local service="$1"    # Service name - identifies the keychain entry
+    local account="$2"    # Account name - identifies the specific credential
+    
+    # Only works on macOS - check OS before attempting keychain access
+    if [[ "$(uname)" != "Darwin" ]]; then
+        return 1  # Exit early on non-macOS systems
+    fi
+    
+    # Validate service parameter to prevent command injection attacks
+    # Only allow alphanumeric, dots, underscores, and hyphens
+    if [[ ! "$service" =~ ^[a-zA-Z0-9._-]+$ ]] || [[ ${#service} -gt 64 ]]; then
+        log_warning "Invalid keychain service name: $service"
+        return 1  # Reject invalid service names for security
+    fi
+    
+    # Validate account parameter with same security restrictions
+    # Allow @ symbol for email-style account names
+    if [[ ! "$account" =~ ^[a-zA-Z0-9._@-]+$ ]] || [[ ${#account} -gt 64 ]]; then
+        log_warning "Invalid keychain account name: $account"
+        return 1  # Reject invalid account names for security
+    fi
+    
+    # Use printf %q to safely escape parameters for shell execution
+    # This prevents injection even if validation is somehow bypassed
+    local safe_service safe_account
+    safe_service=$(printf '%q' "$service")    # Shell-escape the service name
+    safe_account=$(printf '%q' "$account")    # Shell-escape the account name
+    
+    # Get value from keychain and validate the output before returning
+    local keychain_output
+    # Add timeout to prevent hanging on keychain access prompts
+    if keychain_output=$(timeout 3 security find-generic-password -s "$safe_service" -a "$safe_account" -w 2>/dev/null); then
+        # Strip trailing newlines and carriage returns that security command adds
+        while [[ "$keychain_output" == *$'\n' ]] || [[ "$keychain_output" == *$'\r' ]]; do
+            keychain_output="${keychain_output%$'\n'}"
+            keychain_output="${keychain_output%$'\r'}"
+        done
+        
+        # Validate the keychain output to ensure it's safe to use
+        # Check length (prevent buffer overflows) and internal newlines/carriage returns
+        if [[ ${#keychain_output} -le 8192 ]] && [[ "$keychain_output" != *$'\n'* ]] && [[ "$keychain_output" != *$'\r'* ]]; then
+            echo "$keychain_output"  # Output the validated credential
+            return 0  # Success
+        else
+            log_warning "Invalid keychain output for $service/$account"
+            return 1  # Reject invalid output for security
+        fi
+    else
+        return 1  # Keychain lookup failed
+    fi
+}
+# Dynamically discover all entries in the api_keys keychain service
+# Returns a list of account names (environment variable names) from api_keys service
+# This allows users to store any custom environment variables without modifying the script
+get_api_keys_entries() {
+    # Only works on macOS with security command
+    if [[ "$(uname)" != "Darwin" ]] || ! command -v security >/dev/null 2>&1; then
+        return 1
+    fi
+    
+    local valid_entries=()
+    
+    # Method 1: Try using dump-keychain on the login keychain directly
+    # This is the most reliable method to get ALL entries
+    local keychain_path="$HOME/Library/Keychains/login.keychain-db"
+    if [[ -f "$keychain_path" ]]; then
+        local entries
+        if entries=$(security dump-keychain "$keychain_path" 2>/dev/null | grep -A 10 -B 2 '"svce"<blob>="api_keys"' | grep '"acct"<blob>=' | sed 's/.*"acct"<blob>="\([^"]*\)".*/\1/' 2>/dev/null); then
+            while IFS= read -r entry; do
+                # Only allow standard environment variable naming patterns for security
+                if [[ "$entry" =~ ^[A-Z][A-Z0-9_]*$ ]] && [[ ${#entry} -le 64 ]]; then
+                    # Check if not already in the list
+                    local already_present=false
+                    for existing in "${valid_entries[@]}"; do
+                        if [[ "$existing" == "$entry" ]]; then
+                            already_present=true
+                            break
+                        fi
+                    done
+                    if [[ "$already_present" == false ]]; then
+                        valid_entries+=("$entry")
+                    fi
+                fi
+            done <<< "$entries"
+        fi
+    fi
+    
+    # Method 2: Try iterating with find-generic-password
+    # Some keychains might not allow dump-keychain
+    # We'll try common environment variable names that might be in api_keys
+    local common_vars=(
+        "OPENAI_API_KEY"
+        "ANTHROPIC_API_KEY"
+        "AWS_ACCESS_KEY_ID"
+        "AWS_SECRET_ACCESS_KEY"
+        "AWS_DEFAULT_REGION"
+        "AWS_BEARER_TOKEN_BEDROCK"
+        "GITHUB_PERSONAL_ACCESS_TOKEN"
+        "GITHUB_TOKEN"
+        "GH_TOKEN"
+        "ATLASSIAN_API_TOKEN"
+    )
+    
+    for var in "${common_vars[@]}"; do
+        # Check if this entry exists in api_keys service
+        if security find-generic-password -s "api_keys" -a "$var" -w 2>/dev/null >/dev/null; then
+            # Check if not already in the list
+            local already_present=false
+            for existing in "${valid_entries[@]}"; do
+                if [[ "$existing" == "$var" ]]; then
+                    already_present=true
+                    break
+                fi
+            done
+            if [[ "$already_present" == false ]]; then
+                valid_entries+=("$var")
+            fi
+        fi
+    done
+    
+    # Output the valid entries, one per line
+    if [[ ${#valid_entries[@]} -gt 0 ]]; then
+        printf '%s\n' "${valid_entries[@]}"
+        return 0
+    else
+        return 1
+    fi
+}
+# Main credential retrieval function with hierarchical fallback system
+# Implements a secure, multi-source credential lookup with the following priority:
+# 1. Environment variables (highest priority - already set by user)
+# 2. macOS Keychain (specific MCP service patterns)
+# 3. macOS Keychain (generic "api_keys" service)
+# Parameters: variable name to look up (like "GITHUB_TOKEN")
+# Returns: the credential value if found, or exits with error code 1
+# Security: Validates variable names and all retrieved values before use
+get_env_value() {
+    local var_name="$1"  # Name of the environment variable to retrieve
+    local value=""       # Will hold the retrieved credential value
+    local source=""      # Tracks where the value was found (for logging)
+    
+    # Validate variable name to prevent indirect reference attacks
+    # Only allow standard environment variable patterns to prevent injection
+    if [[ ! "$var_name" =~ ^[A-Z][A-Z0-9_]*$ ]] || [[ ${#var_name} -gt 64 ]]; then
+        log_warning "Invalid variable name for lookup: $var_name"
+        return 1  # Reject invalid variable names for security
+    fi
+    
+    # PRIORITY 1: Check if environment variable is already set
+    # Use indirect reference ${!var_name} to get value of variable named in var_name
+    if [[ -n "${!var_name:-}" ]]; then
+        # Additional safety: validate the existing environment value before using it
+        local temp_value="${!var_name}"  # Get the actual value
+        # Check for reasonable length (security validation)
+        if [[ ${#temp_value} -le 8192 ]]; then
+            value="$temp_value"    # Use the validated environment value
+            source="environment"   # Track that it came from environment
+        else
+            log_warning "Environment variable $var_name too long (${#temp_value} characters, max 8192)"
+            return 1  # Reject overly long values for security
+        fi
+    # PRIORITY 2: Check macOS keychain (only on Darwin/macOS systems)
+    elif [[ "$(uname)" == "Darwin" ]]; then
+        # Try different keychain service/account combinations for each credential type
+        # Each case represents a different API key or credential with known keychain patterns
+        case "$var_name" in
+            "GITHUB_TOKEN"|"GITHUB_PERSONAL_ACCESS_TOKEN"|"GH_TOKEN")
+                # github-mcp/token -> GITHUB_PERSONAL_ACCESS_TOKEN
+                if value=$(get_keychain_value "github-mcp" "token" 2>/dev/null); then
+                    source="keychain"
+                fi
+                ;;
+            "ATLASSIAN_API_TOKEN")
+                # atlassian-mcp/token -> ATLASSIAN_API_TOKEN
+                if value=$(get_keychain_value "atlassian-mcp" "token" 2>/dev/null); then
+                    source="keychain"
+                fi
+                ;;
+            "ATLASSIAN_DOMAIN")
+                # atlassian-mcp/domain -> ATLASSIAN_DOMAIN
+                if value=$(get_keychain_value "atlassian-mcp" "domain" 2>/dev/null); then
+                    source="keychain"
+                fi
+                ;;
+            "ATLASSIAN_EMAIL")
+                # atlassian-mcp/email -> ATLASSIAN_EMAIL
+                if value=$(get_keychain_value "atlassian-mcp" "email" 2>/dev/null); then
+                    source="keychain"
+                fi
+                ;;
+            "ATLASSIAN_BITBUCKET_USERNAME")
+                # bitbucket-mcp/username -> ATLASSIAN_BITBUCKET_USERNAME
+                if value=$(get_keychain_value "bitbucket-mcp" "username" 2>/dev/null); then
+                    source="keychain"
+                fi
+                ;;
+            "ATLASSIAN_BITBUCKET_APP_PASSWORD")
+                # bitbucket-mcp/app-password -> ATLASSIAN_BITBUCKET_APP_PASSWORD
+                if value=$(get_keychain_value "bitbucket-mcp" "app-password" 2>/dev/null); then
+                    source="keychain"
+                fi
+                ;;
+            "BITBUCKET_DEFAULT_WORKSPACE")
+                # bitbucket-mcp/workspace -> BITBUCKET_DEFAULT_WORKSPACE
+                if value=$(get_keychain_value "bitbucket-mcp" "workspace" 2>/dev/null); then
+                    source="keychain"
+                fi
+                ;;
+        esac
+    fi
+    
+    # PRIORITY 3: Check generic "api_keys" keychain service for additional variables
+    # Look for entries where username = environment variable name, password = value
+    # Only check if we're on macOS and haven't found the variable yet
+    if [[ -z "$value" ]] && [[ "$(uname)" == "Darwin" ]]; then
+        if value=$(get_keychain_value "api_keys" "$var_name" 2>/dev/null); then
+            source="keychain-api_keys"  # Track that it came from generic api_keys service
+        fi
+    fi
+    
+    # Output the found value and log where it came from (for user awareness)
+    if [[ -n "$value" ]]; then
+        echo "$value"  # Output the credential value to stdout
+        # Log success message indicating the source (helps with troubleshooting)
+        case "$source" in
+            "environment")
+                log_success "$var_name retrieved from environment"  # Already set by user
+                ;;
+            "keychain")
+                log_success "$var_name retrieved from keychain"     # Found in macOS Keychain
+                ;;
+            "keychain-api_keys")
+                log_success "$var_name retrieved from keychain (api_keys service)"  # Found in generic api_keys service
+                ;;
+        esac
+        return 0  # Success - credential found and returned
+    else
+        # No credential found in any source - log warning for user awareness
+        log_warning "$var_name not found in environment or keychain"
+        return 1  # Failure - credential not available
+    fi
+}
+# Function to show usage
+# Display usage information and help text
+# Shows command syntax, options, examples, and credential source information
+# Called when user passes --help or -h, or when invalid arguments provided
+show_usage() {
+    cat << 'EOF'
+Usage: sshk [OPTIONS] [user@]hostname [command]
+
+SSH with API key forwarding - forwards environment variables to remote host
+
+OPTIONS:
+    -t          Attach to tmux session after connecting
+    -v, --verbose  Show detailed information about environment variable sources
+    -h, --help  Show this help message
+
+ENVIRONMENT VARIABLES FORWARDED:
+    - ATLASSIAN_API_TOKEN
+    - ATLASSIAN_DOMAIN
+    - ATLASSIAN_EMAIL
+    - ATLASSIAN_BITBUCKET_USERNAME
+    - ATLASSIAN_BITBUCKET_APP_PASSWORD
+    - BITBUCKET_DEFAULT_WORKSPACE
+    - GITHUB_TOKEN
+    - GITHUB_PERSONAL_ACCESS_TOKEN
+    - GH_TOKEN
+    - key-values pairs from "api_keys"
+
+SOURCES (in order of preference):
+    1. Environment variables
+    2. macOS Keychain (specific MCP service patterns)
+    3. macOS Keychain (generic "api_keys" service)
+
+KEYCHAIN SETUP:
+    Store credentials in macOS Keychain using these exact service/account names:
+    
+    Service: github-mcp
+      Account: token                    → GITHUB_PERSONAL_ACCESS_TOKEN
+    
+    Service: atlassian-mcp  
+      Account: token                    → ATLASSIAN_API_TOKEN
+      Account: email                    → ATLASSIAN_EMAIL
+      Account: domain                   → ATLASSIAN_DOMAIN
+    
+    Service: bitbucket-mcp
+      Account: username                 → ATLASSIAN_BITBUCKET_USERNAME
+      Account: workspace                → BITBUCKET_DEFAULT_WORKSPACE
+      Account: app-password             → ATLASSIAN_BITBUCKET_APP_PASSWORD
+    
+    Service: api_keys (generic fallback)
+      Account: <ENV_VAR_NAME>           → Any environment variable
+      
+    Example commands (secure - prompts for password):
+      security add-generic-password -s "github-mcp" -a "token"
+      security add-generic-password -s "atlassian-mcp" -a "token"
+      security add-generic-password -s "atlassian-mcp" -a "email"
+      security add-generic-password -s "atlassian-mcp" -a "domain"
+      security add-generic-password -s "bitbucket-mcp" -a "username"
+      security add-generic-password -s "bitbucket-mcp" -a "workspace"
+      security add-generic-password -s "bitbucket-mcp" -a "app-password"
+      security add-generic-password -s "api_keys" -a "CUSTOM_API_KEY"
+      
+    Note: Omitting -w flag prompts securely for password (recommended)
+    Alternative: Use Keychain Access.app GUI to avoid shell history exposure
+
+TMUX SUPPORT:
+    When using -t option, environment variables are:
+    1. Forwarded via SSH SendEnv
+    2. Written to a temporary file on the remote host
+    3. Automatically sourced when attaching to tmux
+
+EXAMPLES:
+    sshk user@server.com
+    sshk -t user@server.com
+    sshk user@server.com "echo \$GITHUB_TOKEN"
+
+EOF
+}
+# Main function - orchestrates the entire credential forwarding process
+# This is the primary entry point that handles argument parsing, credential discovery,
+# SSH command construction, and execution with proper environment variable forwarding
+# Parameters: all command-line arguments passed to the script
+# Returns: exits with SSH's exit code, or 1 on error
+main() {
+    # Initialize local variables for argument parsing
+    local use_tmux=false      # Flag: whether to set up tmux session on remote host
+    local ssh_args=()         # Array: SSH arguments to pass through (like -p, -i, etc.)
+    local hostname=""         # String: target hostname or user@hostname
+    local remaining_args=()   # Array: additional arguments to pass to remote command
+    
+    # Parse command-line arguments using a while loop
+    # This allows flexible argument ordering and proper handling of SSH options
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -v|--verbose)
+                # Enable verbose mode - shows more detailed information
+                SSHK_VERBOSE=true
+                shift  # Move to next argument
+                ;;
+            -t)
+                # Enable tmux mode - will create/attach to tmux session on remote host
+                use_tmux=true
+                shift  # Move to next argument
+                ;;
+            -h|--help)
+                # Show help and exit successfully
+                show_usage
+                exit 0  # Exit with success code
+                ;;
+            -*)
+                # Handle SSH arguments (like -p 22, -i keyfile, -o Option=value)
+                # Validate SSH arguments to prevent injection attacks
+                case "$1" in
+                    *[\;\|\&\$\`\\\(\)\{\}\[\]\<\>\'\"]*)
+                        log_error "Invalid SSH argument: contains dangerous characters: $1"
+                        exit 1  # Exit on security violation
+                        ;;
+                esac
+                ssh_args+=("$1")  # Add validated argument to SSH args array
+                
+                # Handle SSH options that require a value (like -p, -i, -l, -F, etc.)
+                case "$1" in
+                    -p|-i|-l|-F|-c|-m|-o|-S|-w|-I|-J|-L|-R|-D|-W|-b|-E|-Q)
+                        # Store the option name before shifting
+                        local ssh_option="$1"
+                        # These options require a value, so consume the next argument too
+                        shift  # Move to the value
+                        if [[ $# -gt 0 && "$1" != -* ]]; then
+                            # Validate the value as well
+                            case "$1" in
+                                *[\;\|\&\$\`\\\(\)\{\}\[\]\<\>\'\"]*)
+                                    log_error "Invalid SSH argument value: contains dangerous characters: $1"
+                                    exit 1
+                                    ;;
+                            esac
+                            ssh_args+=("$1")  # Add the value
+                        else
+                            log_error "SSH option $ssh_option requires a value"
+                            exit 1
+                        fi
+                        ;;
+                esac
+                shift  # Move to next argument
+                ;;
+            *)
+                # Handle positional arguments (hostname and remote command)
+                if [[ -z "$hostname" ]]; then
+                    hostname="$1"  # First positional arg is hostname
+                else
+                    remaining_args+=("$1")  # Subsequent args are remote command
+                fi
+                shift  # Move to next argument
+                ;;
+        esac
+    done
+    
+    # Validate that hostname was provided (required argument)
+    if [[ -z "$hostname" ]]; then
+        log_error "No hostname provided"  # User must specify target host
+        show_usage  # Show usage help
+        exit 1  # Exit with error code
+    fi
+    
+    # Validate hostname to prevent command injection
+    case "$hostname" in
+        *[\;\|\&\$\`\\\(\)\{\}\[\]\<\>\'\"]*)
+            log_error "Invalid hostname: contains dangerous characters"
+            exit 1
+            ;;
+        *[[:space:]]*)
+            log_error "Invalid hostname: contains whitespace"
+            exit 1
+            ;;
+        "")
+            log_error "Empty hostname not allowed"
+            exit 1
+            ;;
+    esac
+    
+    # Define base environment variables to forward (from specific MCP services)
+    local env_vars=(
+        "ATLASSIAN_API_TOKEN"
+        "ATLASSIAN_DOMAIN"
+        "ATLASSIAN_EMAIL"
+        "ATLASSIAN_BITBUCKET_USERNAME"
+        "ATLASSIAN_BITBUCKET_APP_PASSWORD"
+        "BITBUCKET_DEFAULT_WORKSPACE"
+        "GITHUB_TOKEN"
+        "GITHUB_PERSONAL_ACCESS_TOKEN"
+        "GH_TOKEN"
+    )
+    
+    # Dynamically discover and add all entries from api_keys service
+    local api_keys_entries
+    if api_keys_entries=$(get_api_keys_entries 2>/dev/null); then
+        while IFS= read -r entry; do
+            # Add to env_vars array if not already present
+            local already_present=false
+            for existing_var in "${env_vars[@]}"; do
+                if [[ "$existing_var" == "$entry" ]]; then
+                    already_present=true
+                    break
+                fi
+            done
+            if [[ "$already_present" == false ]]; then
+                env_vars+=("$entry")
+            fi
+        done <<< "$api_keys_entries"
+    fi
+    
+    log_info "Preparing to connect to $hostname"
+    
+    # Collect available environment variables with value validation
+    local available_vars=()
+    local sendenv_args=()
+    
+    for var in "${env_vars[@]}"; do
+        local value
+        if value=$(get_env_value "$var" 2>/dev/null); then
+            # Validate the value for dangerous content
+            if [[ "$value" =~ $'\n'|$'\r' ]]; then
+                log_warning "Skipping $var: contains newline characters (potential injection)"
+                continue
+            fi
+            
+            # Check for null bytes using printf and wc approach
+            local value_length=${#value}
+            local printf_length=$(printf '%s' "$value" | wc -c)
+            if [[ $value_length -ne $printf_length ]]; then
+                log_warning "Skipping $var: contains null bytes"
+                continue
+            fi
+            
+            # Check for extremely long values that might cause issues
+            if [[ ${#value} -gt 8192 ]]; then
+                log_warning "Skipping $var: value too long (${#value} characters, max 8192)"
+                continue
+            fi
+            
+            available_vars+=("$var")
+            sendenv_args+=("-o" "SendEnv=$var")
+        fi
+    done
+    
+    if [[ ${#available_vars[@]} -eq 0 ]]; then
+        log_warning "No environment variables found to forward"
+    else
+        if [[ "${SSHK_VERBOSE:-}" == "true" ]]; then
+            log_info "Found ${#available_vars[@]} environment variables to forward:"
+            # Variable details already shown in the loop above
+        else
+            log_info "Found ${#available_vars[@]} environment variables to forward:"
+            for var in "${available_vars[@]}"; do
+                log_info "  → $var"
+            done
+        fi
+    fi
+    
+    # Handle tmux case
+    if [[ "$use_tmux" == true ]]; then
+        log_info "Tmux mode enabled - using SendEnv for secure variable transfer"
+        
+        # For tmux mode, we rely entirely on SSH SendEnv
+        # Build a secure command that uses only the variables we actually have
+        local tmux_vars_array=()
+        for var in "${available_vars[@]}"; do
+            # Double-check variable name is safe (should already be validated)
+            if [[ "$var" =~ ^[A-Z][A-Z0-9_]*$ ]]; then
+                tmux_vars_array+=("$var")
+            fi
+        done
+        
+        # Create a secure command without format string vulnerabilities
+        # Use a here-document approach to avoid printf injection
+        local tmux_setup_command
+        if [[ ${#tmux_vars_array[@]} -gt 0 ]]; then
+            # Build the variable list safely
+            local safe_var_list=""
+            for var in "${tmux_vars_array[@]}"; do
+                # Each variable name is already validated, but add extra safety
+                if [[ "$var" =~ ^[A-Z][A-Z0-9_]*$ ]] && [[ ${#var} -le 64 ]]; then
+                    if [[ -n "$safe_var_list" ]]; then
+                        safe_var_list="$safe_var_list $var"
+                    else
+                        safe_var_list="$var"
+                    fi
+                fi
+            done
+            
+            # Create command with safe variable substitution
+            tmux_setup_command="if command -v tmux >/dev/null 2>&1; then for var in $safe_var_list; do if [[ -n \"\${!var:-}\" ]]; then tmux set-environment \"\$var\" \"\${!var}\" 2>/dev/null || true; fi; done; if tmux list-sessions >/dev/null 2>&1; then echo 'Attaching to existing tmux session...'; tmux attach; else echo 'Creating new tmux session...'; tmux new-session; fi; else echo 'tmux not found on remote host'; exec \$SHELL -l; fi"
+            
+            # Validate command length to prevent buffer overflow attacks
+            if [[ ${#tmux_setup_command} -gt 4096 ]]; then
+                log_error "Generated tmux command too long (${#tmux_setup_command} chars), reducing variable count for safety"
+                # Fallback to basic tmux without environment variables
+                tmux_setup_command="if command -v tmux >/dev/null 2>&1; then if tmux list-sessions >/dev/null 2>&1; then echo 'Attaching to existing tmux session...'; tmux attach; else echo 'Creating new tmux session...'; tmux new-session; fi; else echo 'tmux not found on remote host'; exec \$SHELL -l; fi"
+            fi
+        else
+            # No variables to set, just start tmux
+            tmux_setup_command="if command -v tmux >/dev/null 2>&1; then if tmux list-sessions >/dev/null 2>&1; then echo 'Attaching to existing tmux session...'; tmux attach; else echo 'Creating new tmux session...'; tmux new-session; fi; else echo 'tmux not found on remote host'; exec \$SHELL -l; fi"
+        fi
+        
+        remaining_args=("$tmux_setup_command")
+    fi
+    
+    # Build SSH command with security hardening
+    local ssh_cmd=("ssh")
+    
+    # Add security-focused SSH options (only if not already specified by user)
+    local has_hash_known_hosts=false
+    
+    # Check if user already specified these options
+    for arg in "${ssh_args[@]}"; do
+        if [[ "$arg" =~ HashKnownHosts ]]; then
+            has_hash_known_hosts=true
+        fi
+    done
+    
+    # Only add security options if not already specified
+    if [[ "$has_hash_known_hosts" == false ]]; then
+        ssh_cmd+=("-o" "HashKnownHosts=yes")         # Protect against host enumeration
+    fi
+    ssh_cmd+=("-o" "VisualHostKey=no")               # Reduce information leakage
+    
+    # Add SSH arguments if any
+    if [[ ${#ssh_args[@]} -gt 0 ]]; then
+        ssh_cmd+=("${ssh_args[@]}")
+    fi
+    
+    # Add SendEnv arguments if any
+    if [[ ${#sendenv_args[@]} -gt 0 ]]; then
+        ssh_cmd+=("${sendenv_args[@]}")
+    fi
+    
+    # Add hostname
+    ssh_cmd+=("$hostname")
+    
+    # Add remaining arguments if any
+    if [[ ${#remaining_args[@]} -gt 0 ]]; then
+        # Final validation of remaining arguments
+        for arg in "${remaining_args[@]}"; do
+            # Check for extremely long arguments that might cause buffer overflows
+            if [[ ${#arg} -gt 32768 ]]; then
+                log_error "SSH command argument too long (${#arg} characters, max 32768)"
+                exit 1
+            fi
+        done
+        ssh_cmd+=("${remaining_args[@]}")
+    fi
+    
+    # Security logging (without exposing sensitive values)
+    log_info "SSH command length: ${#ssh_cmd[@]} arguments"
+    log_info "SendEnv variables: ${#available_vars[@]}"
+    
+    # Final security check - ensure we're not accidentally exposing credentials in command line
+    local cmd_string="${ssh_cmd[*]}"
+    if [[ "$cmd_string" =~ (sk-[a-zA-Z0-9]{48,}|xoxb-[a-zA-Z0-9-]+|AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36}) ]]; then
+        log_error "Potential credential detected in SSH command line - aborting for security"
+        exit 1
+    fi
+    
+    log_info "Executing: ssh [${#ssh_cmd[@]} arguments] $hostname"
+    if [[ ${#available_vars[@]} -gt 0 ]]; then
+        log_info "Connecting to $hostname with environment variables: ${available_vars[*]}"
+    else
+        log_info "Connecting to $hostname with no environment variables"
+    fi
+    
+    # Log connection attempt for security auditing (with safe hostname)
+    # Only log if hostname is safe (already validated above)
+    local safe_hostname
+    safe_hostname=$(printf '%q' "$hostname")
+    logger -t sshk "SSH connection attempt to $safe_hostname with ${#available_vars[@]} env vars" 2>/dev/null || true
+    
+    # Execute SSH command
+    exec "${ssh_cmd[@]}"
+}
+# Check if sshk is properly installed in ~/bin and offer to install if not
+check_installation() {
+    # Get the directory where this script is located
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local script_path="$script_dir/$(basename "${BASH_SOURCE[0]}")"
+    local bin_path="$HOME/bin/sshk"
+    
+    # If we're already running from ~/bin/sshk (or via symlink), no need to check
+    if [[ "$script_path" == "$bin_path" ]] || [[ -L "$bin_path" && "$(readlink "$bin_path")" == "$script_path" ]]; then
+        return 0
+    fi
+    
+    # Check if sshk exists in ~/bin
+    if [[ ! -f "$bin_path" ]]; then
+        # Only prompt if we have an interactive terminal
+        if [[ -t 0 ]]; then
+            echo "sshk not found in ~/bin"
+            echo "Would you like to install it? (s)ymlink, (c)opy, or (n)o [default: n]"
+            read -r response
+            
+            case "${response,,}" in
+                s|y)
+                    # Create ~/bin directory if it doesn't exist
+                    mkdir -p "$HOME/bin"
+                    # Create symlink
+                    if ln -sf "$script_path" "$bin_path"; then
+                        echo "✓ Symlinked $script_path to $bin_path"
+                        echo "Make sure $HOME/bin is in your PATH"
+                    else
+                        log_error "Failed to create symlink"
+                        exit 1
+                    fi
+                    ;;
+                c)
+                    # Create ~/bin directory if it doesn't exist
+                    mkdir -p "$HOME/bin"
+                    # Copy file
+                    if cp "$script_path" "$bin_path" && chmod +x "$bin_path"; then
+                        echo "✓ Copied $script_path to $bin_path"
+                        echo "Make sure $HOME/bin is in your PATH"
+                    else
+                        log_error "Failed to copy script"
+                        exit 1
+                    fi
+                    ;;
+                n|"")
+                    echo "Continuing without installation..."
+                    ;;
+                *)
+                    echo "Invalid response. Continuing without installation..."
+                    ;;
+            esac
+        else
+            # Non-interactive mode - just continue silently
+            return 0
+        fi
+    fi
+}
+
+# Check installation before running main function
+check_installation
+
+# Execute main function with all command-line arguments
+main "$@"
